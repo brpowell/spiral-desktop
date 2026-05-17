@@ -104,7 +104,7 @@
 }
 
 .library-table__row {
-  cursor: pointer;
+  cursor: default;
   position: relative;
 }
 
@@ -123,6 +123,7 @@
   position: static;
   transform: none;
   opacity: 0;
+  cursor: pointer;
 }
 
 .library-table__row:hover .track-row-menu__edit--table,
@@ -134,11 +135,15 @@
   background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 
-.library-table__row--active td {
+.library-table__row--selected td {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.library-table__row--playing td {
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
-.library-table__row--active td:nth-child(2) {
+.library-table__row--playing td:nth-child(2) {
   color: var(--color-accent);
   font-weight: 500;
 }

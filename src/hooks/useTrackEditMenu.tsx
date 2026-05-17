@@ -66,19 +66,17 @@ export function useTrackEditMenu(track: Track) {
         )
       : null;
 
-  const removeDialog =
-    removeDialogOpen
-      ? createPortal(
-          <RemoveTrackDialog
-            track={track}
-            onClose={() => setRemoveDialogOpen(false)}
-            onRemove={(deleteFromDisk) =>
-              removeTrackFromLibrary(track.id, deleteFromDisk)
-            }
-          />,
-          document.body,
-        )
-      : null;
+  const removeDialog = createPortal(
+    <RemoveTrackDialog
+      open={removeDialogOpen}
+      track={track}
+      onClose={() => setRemoveDialogOpen(false)}
+      onRemove={(deleteFromDisk) =>
+        removeTrackFromLibrary(track.id, deleteFromDisk)
+      }
+    />,
+    document.body,
+  );
 
   return { onContextMenu, openEditor, contextMenu, removeDialog };
 }

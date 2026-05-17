@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import type { Track } from "../../types/track";
+import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
 import "./RemoveTrackDialog.css";
 
 interface RemoveTrackDialogProps {
+  open: boolean;
   track: Track;
   onClose: () => void;
   onRemove: (deleteFromDisk: boolean) => Promise<void>;
 }
 
 export function RemoveTrackDialog({
+  open,
   track,
   onClose,
   onRemove,
@@ -17,7 +20,7 @@ export function RemoveTrackDialog({
   const dialogRef = useRef<HTMLDivElement>(null);
   const removingRef = useRef(false);
 
-  useFocusTrap(dialogRef, true);
+  useFocusTrap(dialogRef, open);
 
   const handleRemove = useCallback(
     async (deleteFromDisk: boolean) => {
@@ -45,15 +48,14 @@ export function RemoveTrackDialog({
   const subtitle = [track.artist, track.album].filter(Boolean).join(" · ");
 
   return (
-    <div className="remove-track-backdrop" onClick={onClose}>
-      <div
-        ref={dialogRef}
-        className="remove-track-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="remove-track-title"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatedModal
+      open={open}
+      backdropClassName="remove-track-backdrop"
+      panelClassName="remove-track-dialog"
+      panelRef={dialogRef}
+      labelledBy="remove-track-title"
+      onBackdropClick={onClose}
+    >
         <h2 id="remove-track-title" className="remove-track-dialog__heading">
           Remove from library?
         </h2>
@@ -76,7 +78,6 @@ export function RemoveTrackDialog({
             Remove and delete file
           </button>
         </div>
-      </div>
-    </div>
+    </AnimatedModal>
   );
 }

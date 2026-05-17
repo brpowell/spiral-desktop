@@ -128,17 +128,22 @@
   background: transparent;
   text-align: left;
   font-size: 0.9rem;
+  cursor: default;
 }
 
 .album-track-row:hover {
   background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 
-.album-track-row--active {
+.album-track-row--selected {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.album-track-row--playing {
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
-.album-track-row--active .album-track-row__title {
+.album-track-row--playing .album-track-row__title {
   color: var(--color-accent);
 }
 

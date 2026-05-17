@@ -18,6 +18,8 @@ export function AlbumDetailView({ albums, albumKey }: AlbumDetailViewProps) {
   const closeAlbum = useNavigationStore((s) => s.closeAlbum);
   const playTracks = usePlayerStore((s) => s.playTracks);
   const currentTrackId = usePlayerStore((s) => s.currentTrackId);
+  const selectedTrackId = usePlayerStore((s) => s.selectedTrackId);
+  const selectTrack = usePlayerStore((s) => s.selectTrack);
 
   const album = getAlbumByKey(albums, albumKey);
 
@@ -39,6 +41,10 @@ export function AlbumDetailView({ albums, albumKey }: AlbumDetailViewProps) {
   const handlePlayAll = () => {
     const first = album.tracks[0];
     if (first) void playTracks(trackIds, first.id);
+  };
+
+  const handleSelectTrack = (track: Track) => {
+    selectTrack(track.id);
   };
 
   const handlePlayTrack = (track: Track) => {
@@ -87,14 +93,21 @@ export function AlbumDetailView({ albums, albumKey }: AlbumDetailViewProps) {
         {album.tracks.map((track) => (
           <li key={track.id}>
             <TrackRowMenu track={track} className="album-track-row-wrap">
-              <button
-                type="button"
-                className={
-                  track.id === currentTrackId
-                    ? "album-track-row album-track-row--active"
-                    : "album-track-row"
-                }
-                onClick={() => handlePlayTrack(track)}
+              <div
+                role="button"
+                tabIndex={0}
+                className={[
+                  "album-track-row",
+                  track.id === selectedTrackId && "album-track-row--selected",
+                  track.id === currentTrackId && "album-track-row--playing",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                onClick={() => handleSelectTrack(track)}
+                onDoubleClick={() => handlePlayTrack(track)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handlePlayTrack(track);
+                }}
               >
                 <span className="album-track-row__num">
                   {track.trackNumber ?? "—"}
@@ -105,7 +118,7 @@ export function AlbumDetailView({ albums, albumKey }: AlbumDetailViewProps) {
                     ? formatTime(track.durationSeconds)
                     : "—"}
                 </span>
-              </button>
+              </div>
             </TrackRowMenu>
           </li>
         ))}

@@ -4,6 +4,7 @@ import { resolveThemeTokens } from "../../lib/theme";
 import { useThemeStore } from "../../store/useThemeStore";
 import { THEME_SCHEMA_EXAMPLE, type Theme } from "../../types/theme";
 import { IconCheck, IconClose, IconHelp } from "../icons";
+import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
 import "./ThemePicker.css";
 
 function ThemeSwatch({
@@ -80,22 +81,15 @@ export function ThemePicker() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
 
-  if (!open) return null;
-
   return (
-    <div
-      className="theme-picker-backdrop"
-      onClick={() => setOpen(false)}
-      role="presentation"
+    <AnimatedModal
+      open={open}
+      backdropClassName="theme-picker-backdrop"
+      panelClassName="theme-picker"
+      panelRef={panelRef}
+      labelledBy={titleId}
+      onBackdropClick={() => setOpen(false)}
     >
-      <div
-        ref={panelRef}
-        className="theme-picker"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        onClick={(e) => e.stopPropagation()}
-      >
         <header className="theme-picker__header">
           <h2 id={titleId} className="theme-picker__title">
             Themes
@@ -168,7 +162,6 @@ export function ThemePicker() {
             Open themes folder
           </button>
         </footer>
-      </div>
-    </div>
+    </AnimatedModal>
   );
 }

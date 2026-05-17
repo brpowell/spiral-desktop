@@ -8,6 +8,7 @@ interface PlayerState {
   library: Track[];
   queue: number[];
   currentTrackId: number | null;
+  selectedTrackId: number | null;
   playbackState: PlaybackState;
   positionSeconds: number;
   volume: number;
@@ -20,6 +21,7 @@ interface PlayerState {
   importFolder: () => Promise<void>;
   playTrack: (id: number) => Promise<void>;
   playTracks: (ids: number[], startId: number) => Promise<void>;
+  selectTrack: (id: number | null) => void;
   pause: () => void;
   resume: () => void;
   seek: (ratio: number) => void;
@@ -73,6 +75,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     library: [],
     queue: [],
     currentTrackId: null,
+    selectedTrackId: null,
     playbackState: "stopped",
     positionSeconds: 0,
     volume: 1,
@@ -127,10 +130,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       }
     },
 
+    selectTrack: (id) => set({ selectedTrackId: id }),
+
     playTracks: async (ids, startId) => {
       if (ids.length === 0) return;
       if (!ids.includes(startId)) return;
-      set({ queue: ids });
+      set({ queue: ids, selectedTrackId: startId });
       await get().playTrack(startId);
     },
 
@@ -145,6 +150,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
         audio.play();
         set({
           currentTrackId: id,
+          selectedTrackId: id,
           playbackState: "playing",
           positionSeconds: 0,
         });
@@ -240,6 +246,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
         library: state.library.filter((t) => t.id !== id),
         queue: state.queue.filter((trackId) => trackId !== id),
         currentTrackId: wasCurrent ? null : state.currentTrackId,
+        selectedTrackId:
+          state.selectedTrackId === id ? null : state.selectedTrackId,
         playbackState: wasCurrent ? "stopped" : state.playbackState,
         positionSeconds: wasCurrent ? 0 : state.positionSeconds,
         editingTrackId: state.editingTrackId === id ? null : state.editingTrackId,

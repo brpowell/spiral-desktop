@@ -10,26 +10,36 @@ import "./LibraryView.css";
 function LibraryTableRow({
   track,
   index,
-  isActive,
+  isSelected,
+  isPlaying,
+  onSelect,
   onPlay,
 }: {
   track: Track;
   index: number;
-  isActive: boolean;
+  isSelected: boolean;
+  isPlaying: boolean;
+  onSelect: () => void;
   onPlay: () => void;
 }) {
   const { onContextMenu, openEditor, contextMenu, removeDialog } =
     useTrackEditMenu(track);
 
+  const rowClass = [
+    "library-table__row",
+    "track-row-menu",
+    isSelected && "library-table__row--selected",
+    isPlaying && "library-table__row--playing",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <>
     <tr
-      className={
-        isActive
-          ? "library-table__row library-table__row--active track-row-menu"
-          : "library-table__row track-row-menu"
-      }
-      onClick={onPlay}
+      className={rowClass}
+      onClick={onSelect}
+      onDoubleClick={onPlay}
       onContextMenu={onContextMenu}
     >
       <td className="library-table__num">{index + 1}</td>
@@ -112,6 +122,8 @@ function matchesSearch(track: Track, query: string): boolean {
 export function LibraryView({ tracks }: LibraryViewProps) {
   const playTracks = usePlayerStore((s) => s.playTracks);
   const currentTrackId = usePlayerStore((s) => s.currentTrackId);
+  const selectedTrackId = usePlayerStore((s) => s.selectedTrackId);
+  const selectTrack = usePlayerStore((s) => s.selectTrack);
 
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<SortField>("title");
@@ -129,6 +141,10 @@ export function LibraryView({ tracks }: LibraryViewProps) {
       setSortField(field);
       setSortDir("asc");
     }
+  };
+
+  const handleSelectRow = (track: Track) => {
+    selectTrack(track.id);
   };
 
   const handlePlayRow = (track: Track) => {
@@ -207,7 +223,9 @@ export function LibraryView({ tracks }: LibraryViewProps) {
                     key={track.id}
                     track={track}
                     index={index}
-                    isActive={track.id === currentTrackId}
+                    isSelected={track.id === selectedTrackId}
+                    isPlaying={track.id === currentTrackId}
+                    onSelect={() => handleSelectRow(track)}
                     onPlay={() => handlePlayRow(track)}
                   />
                 ))

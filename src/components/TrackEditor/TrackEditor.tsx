@@ -12,6 +12,7 @@ import { usePlayerStore } from "../../store/usePlayerStore";
 import type { TrackMetadataUpdate } from "../../types/metadata";
 import type { Track } from "../../types/track";
 import { AlbumArt } from "../AlbumArt/AlbumArt";
+import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
 import "./TrackEditor.css";
 
 interface EditorForm {
@@ -92,19 +93,12 @@ export function TrackEditor() {
   const [fetchMessage, setFetchMessage] = useState<string | null>(null);
   const [artDragOver, setArtDragOver] = useState(false);
 
-  useFocusTrap(dialogRef, editingTrackId != null);
+  const isOpen = editingTrackId != null && track != null && form != null;
+
+  useFocusTrap(dialogRef, isOpen);
 
   useEffect(() => {
-    if (!track) {
-      setForm(null);
-      setOriginalForm(null);
-      setPendingArtPath(null);
-      setOriginalArtPath(null);
-      setCoverUrls([]);
-      setFetchMessage(null);
-      setSaveError(null);
-      return;
-    }
+    if (!track) return;
     const initial = trackToForm(track);
     setForm(initial);
     setOriginalForm(initial);
@@ -230,20 +224,19 @@ export function TrackEditor() {
     }
   };
 
-  if (editingTrackId == null || !track || !form) return null;
-
   const displayArtPath = pendingArtPath;
 
   return (
-    <div className="track-editor-backdrop" onClick={handleBackdropClick}>
-      <div
-        ref={dialogRef}
-        className="track-editor"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="track-editor-title"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatedModal
+      open={isOpen}
+      backdropClassName="track-editor-backdrop"
+      panelClassName="track-editor"
+      panelRef={dialogRef}
+      labelledBy="track-editor-title"
+      onBackdropClick={handleBackdropClick}
+    >
+      {isOpen && (
+        <>
         <h2 id="track-editor-title" className="track-editor__heading">
           Edit track info
         </h2>
@@ -394,7 +387,8 @@ export function TrackEditor() {
             Cancel
           </button>
         </div>
-      </div>
-    </div>
+        </>
+      )}
+    </AnimatedModal>
   );
 }
