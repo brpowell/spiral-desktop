@@ -37,6 +37,12 @@ pub fn run() {
             commands::metadata::cache_art_from_url,
             commands::metadata::fetch_cover_art,
             commands::metadata::write_track_metadata,
+            commands::themes::get_builtin_themes,
+            commands::themes::load_user_themes,
+            commands::themes::save_active_theme_id,
+            commands::themes::get_active_theme_id,
+            commands::themes::open_themes_folder,
+            commands::themes::import_user_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,0 +1,20 @@
+{
+  "name": "Grove",
+  "author": "Spiral",
+  "description": "Dark green surfaces and soft sage accents. Calm and organic.",
+  "tokens": {
+    "color-bg": "#0f1410",
+    "color-surface": "#1a221c",
+    "color-surface-raised": "#243028",
+    "color-text-primary": "#e2ebe4",
+    "color-text-secondary": "#8fa396",
+    "color-accent": "#6b9f7a",
+    "color-accent-muted": "#3d5c48",
+    "color-border": "#2e3d34",
+    "color-danger": "#d4846a",
+    "color-danger-bg": "#2a1a14",
+    "radius-card": "14px",
+    "radius-button": "8px",
+    "font-ui": "'Source Sans 3', system-ui, -apple-system, sans-serif"
+  }
+}

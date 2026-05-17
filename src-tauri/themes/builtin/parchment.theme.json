@@ -1,0 +1,20 @@
+{
+  "name": "Parchment",
+  "author": "Spiral",
+  "description": "Warm off-white and sepia tones, like a well-lit record shop.",
+  "tokens": {
+    "color-bg": "#f4efe6",
+    "color-surface": "#ebe4d8",
+    "color-surface-raised": "#e2d9ca",
+    "color-text-primary": "#3d3428",
+    "color-text-secondary": "#7a6f5e",
+    "color-accent": "#c47a20",
+    "color-accent-muted": "#e8c9a0",
+    "color-border": "#d4c9b8",
+    "color-danger": "#b54a3a",
+    "color-danger-bg": "#f0ddd8",
+    "radius-card": "12px",
+    "radius-button": "8px",
+    "font-ui": "'Iowan Old Style', 'Palatino Linotype', Georgia, serif"
+  }
+}

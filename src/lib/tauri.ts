@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import type { Theme } from "../types/theme";
 import type { TrackMetadataUpdate } from "../types/metadata";
 import type { Track, TrackInput } from "../types/track";
 
@@ -93,6 +94,30 @@ export async function fetchCoverArt(
   album: string,
 ): Promise<string[]> {
   return invoke<string[]>("fetch_cover_art", { artist, album });
+}
+
+export async function getBuiltinThemes(): Promise<Theme[]> {
+  return invoke<Theme[]>("get_builtin_themes");
+}
+
+export async function loadUserThemes(): Promise<Theme[]> {
+  return invoke<Theme[]>("load_user_themes");
+}
+
+export async function getActiveThemeId(): Promise<string> {
+  return invoke<string>("get_active_theme_id");
+}
+
+export async function saveActiveThemeId(themeName: string): Promise<void> {
+  return invoke<void>("save_active_theme_id", { themeName });
+}
+
+export async function openThemesFolder(): Promise<void> {
+  return invoke<void>("open_themes_folder");
+}
+
+export async function importUserTheme(): Promise<Theme | null> {
+  return invoke<Theme | null>("import_user_theme");
 }
 
 export async function writeTrackMetadata(

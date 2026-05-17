@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
+import { ThemePicker } from "../ThemePicker/ThemePicker";
 import {
   IconAlbums,
   IconArtists,
   IconLibrary,
+  IconPalette,
   IconPlaylists,
 } from "../icons";
+import { useThemeStore } from "../../store/useThemeStore";
 import {
   type NavView,
   useNavigationStore,
@@ -31,6 +34,8 @@ const NAV_ITEMS: {
 export function Sidebar() {
   const view = useNavigationStore((s) => s.view);
   const setView = useNavigationStore((s) => s.setView);
+  const setThemePickerOpen = useThemeStore((s) => s.setThemePickerOpen);
+  const loadThemes = useThemeStore((s) => s.loadThemes);
 
   return (
     <nav className="sidebar" aria-label="Main navigation">
@@ -57,6 +62,24 @@ export function Sidebar() {
           );
         })}
       </ul>
+
+      <div className="sidebar__footer">
+        <button
+          type="button"
+          className="sidebar__link sidebar__link--settings"
+          aria-label="Themes and appearance"
+          onClick={() => {
+            void loadThemes().then(() => setThemePickerOpen(true));
+          }}
+        >
+          <span className="sidebar__icon">
+            <IconPalette />
+          </span>
+          Themes
+        </button>
+      </div>
+
+      <ThemePicker />
     </nav>
   );
 }

@@ -1,0 +1,20 @@
+{
+  "name": "Noir",
+  "author": "Spiral",
+  "description": "True black, stark white, red accent. Cinematic high contrast.",
+  "tokens": {
+    "color-bg": "#000000",
+    "color-surface": "#0a0a0a",
+    "color-surface-raised": "#141414",
+    "color-text-primary": "#ffffff",
+    "color-text-secondary": "#a0a0a0",
+    "color-accent": "#e63946",
+    "color-accent-muted": "#5c1a22",
+    "color-border": "#2a2a2a",
+    "color-danger": "#ff4d4d",
+    "color-danger-bg": "#1a0808",
+    "radius-card": "4px",
+    "radius-button": "2px",
+    "font-ui": "'Helvetica Neue', Helvetica, Arial, sans-serif"
+  }
+}
