@@ -18,6 +18,7 @@ interface PlayerState {
   importTracks: () => Promise<void>;
   importFolder: () => Promise<void>;
   playTrack: (id: number) => Promise<void>;
+  playTracks: (ids: number[], startId: number) => Promise<void>;
   pause: () => void;
   resume: () => void;
   seek: (ratio: number) => void;
@@ -118,6 +119,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
         const message = err instanceof Error ? err.message : String(err);
         set({ importError: `Import failed: ${message}` });
       }
+    },
+
+    playTracks: async (ids, startId) => {
+      if (ids.length === 0) return;
+      if (!ids.includes(startId)) return;
+      set({ queue: ids });
+      await get().playTrack(startId);
     },
 
     playTrack: async (id) => {

@@ -1,15 +1,14 @@
 import { useEffect } from "react";
 import { PlayerDock } from "./components/PlayerDock/PlayerDock";
+import { MainContent } from "./components/layout/MainContent";
+import { Sidebar } from "./components/layout/Sidebar";
 import { usePlayerStore } from "./store/usePlayerStore";
 import "./App.css";
 
 function App() {
-  const library = usePlayerStore((s) => s.library);
-  const currentTrackId = usePlayerStore((s) => s.currentTrackId);
   const loadLibrary = usePlayerStore((s) => s.loadLibrary);
   const importTracks = usePlayerStore((s) => s.importTracks);
   const importFolder = usePlayerStore((s) => s.importFolder);
-  const playTrack = usePlayerStore((s) => s.playTrack);
   const importError = usePlayerStore((s) => s.importError);
   const clearImportError = usePlayerStore((s) => s.clearImportError);
 
@@ -40,39 +39,10 @@ function App() {
         </div>
       )}
 
-      <section className="library">
-        <h2>Library ({library.length})</h2>
-        {library.length === 0 ? (
-          <p className="empty">
-            No tracks yet. Import some music to get started.
-          </p>
-        ) : (
-          <ul className="track-list">
-            {library.map((track) => (
-              <li
-                key={track.id}
-                className={
-                  track.id === currentTrackId
-                    ? "track-item active"
-                    : "track-item"
-                }
-              >
-                <button
-                  type="button"
-                  className="track-button"
-                  onClick={() => playTrack(track.id)}
-                >
-                  <span className="track-title">{track.title}</span>
-                  <span className="track-meta">
-                    {[track.artist, track.album].filter(Boolean).join(" — ") ||
-                      "Unknown artist"}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="app-body">
+        <Sidebar />
+        <MainContent />
+      </div>
 
       <PlayerDock />
     </div>

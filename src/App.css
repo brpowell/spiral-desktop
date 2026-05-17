@@ -24,14 +24,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
+  flex-shrink: 0;
 }
 
 .header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 
@@ -45,6 +47,7 @@ body {
   color: var(--color-danger);
   border-bottom: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .error-banner button {
@@ -52,6 +55,13 @@ body {
   padding: 0.1rem 0.45rem;
   font-size: 1.1rem;
   line-height: 1;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .import-actions {
@@ -76,66 +86,4 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.library {
-  flex: 1;
-  overflow: auto;
-  padding: 1rem 1.25rem;
-  min-height: 0;
-}
-
-.library h2 {
-  margin: 0 0 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-.empty {
-  color: var(--color-text-secondary);
-}
-
-.track-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.track-item {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.track-item.active {
-  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
-}
-
-.track-button {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  padding: 0.6rem 0.25rem;
-  border: none;
-  background: transparent;
-  text-align: left;
-}
-
-.track-button:hover {
-  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
-}
-
-.track-title {
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.track-meta {
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  margin-top: 0.15rem;
-}
-
-.track-item.active .track-title {
-  color: var(--color-accent);
 }

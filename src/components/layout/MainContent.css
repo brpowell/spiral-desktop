@@ -1,0 +1,22 @@
+.main-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content__view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.5rem 2rem;
+}
+
+.main-content__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
