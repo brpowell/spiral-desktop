@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import * as audio from "../lib/audio";
 import { importPaths } from "../lib/import";
-import { getLibrary, pickAudioFiles, pickFolder } from "../lib/tauri";
+import { getLibrary, pickAudioFiles, pickFolder, removeTrack } from "../lib/tauri";
 import type { PlaybackState, Track } from "../types/track";
 
 interface PlayerState {
@@ -32,6 +32,7 @@ interface PlayerState {
   openTrackEditor: (id: number) => void;
   closeTrackEditor: () => void;
   updateTrackInLibrary: (track: Track) => void;
+  removeTrackFromLibrary: (id: number, deleteFromDisk: boolean) => Promise<void>;
 }
 
 function ensureQueue(set: (partial: Partial<PlayerState>) => void, get: () => PlayerState): number[] {
@@ -226,5 +227,23 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       set((state) => ({
         library: state.library.map((t) => (t.id === track.id ? track : t)),
       })),
+
+    removeTrackFromLibrary: async (id, deleteFromDisk) => {
+      await removeTrack(id, deleteFromDisk);
+      const state = get();
+      const wasCurrent = state.currentTrackId === id;
+      if (wasCurrent) {
+        audio.unload();
+        stopPositionPoll();
+      }
+      set({
+        library: state.library.filter((t) => t.id !== id),
+        queue: state.queue.filter((trackId) => trackId !== id),
+        currentTrackId: wasCurrent ? null : state.currentTrackId,
+        playbackState: wasCurrent ? "stopped" : state.playbackState,
+        positionSeconds: wasCurrent ? 0 : state.positionSeconds,
+        editingTrackId: state.editingTrackId === id ? null : state.editingTrackId,
+      });
+    },
   };
 });

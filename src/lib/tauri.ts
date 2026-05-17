@@ -50,6 +50,13 @@ export async function saveTrack(track: TrackInput): Promise<number> {
   return invoke<number>("save_track", { track });
 }
 
+export async function removeTrack(
+  trackId: number,
+  deleteFromDisk: boolean,
+): Promise<void> {
+  return invoke<void>("remove_track", { trackId, deleteFromDisk });
+}
+
 export async function getLibrary(): Promise<Track[]> {
   const rows = await invoke<Record<string, unknown>[]>("get_library");
   return rows.map(normalizeTrack);
@@ -64,6 +71,14 @@ export async function cacheArtFromFile(
   filePath: string,
 ): Promise<string> {
   return invoke<string>("cache_art_from_file", { sourcePath, filePath });
+}
+
+export async function cacheArtFromBytes(
+  bytes: number[],
+  filePath: string,
+  format: string,
+): Promise<string> {
+  return invoke<string>("cache_art_from_bytes", { bytes, filePath, format });
 }
 
 export async function cacheArtFromUrl(

@@ -61,3 +61,12 @@
   background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   color: var(--color-accent);
 }
+
+.track-row-menu__popup .track-row-menu__danger {
+  color: var(--color-danger);
+}
+
+.track-row-menu__popup .track-row-menu__danger:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}

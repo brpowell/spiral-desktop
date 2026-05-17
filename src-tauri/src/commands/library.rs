@@ -1,7 +1,9 @@
 use crate::db;
 use crate::models::{Track, TrackInput};
+use std::fs;
+use std::path::Path;
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{AppHandle, State};
 
 pub struct DbState(pub Mutex<rusqlite::Connection>);
 
@@ -21,4 +23,39 @@ pub fn get_library(state: State<DbState>) -> Result<Vec<Track>, String> {
         eprintln!("get_library error: {e}");
         e.to_string()
     })
+}
+
+#[tauri::command]
+pub fn remove_track(
+    app: AppHandle,
+    state: State<DbState>,
+    track_id: i64,
+    delete_from_disk: bool,
+) -> Result<(), String> {
+    let track = {
+        let conn = state.0.lock().map_err(|e| e.to_string())?;
+        let track = db::get_track_by_id(&conn, track_id)
+            .map_err(|e| e.to_string())?
+            .ok_or_else(|| format!("Track {track_id} not found"))?;
+        db::delete_track(&conn, track_id).map_err(|e| e.to_string())?;
+        track
+    };
+
+    if delete_from_disk {
+        let audio_path = Path::new(&track.file_path);
+        if audio_path.exists() {
+            fs::remove_file(audio_path)
+                .map_err(|e| format!("Failed to delete audio file: {e}"))?;
+        }
+    }
+
+    if let Some(art_path) = &track.art_path {
+        let path = Path::new(art_path);
+        if path.exists() {
+            let _ = fs::remove_file(path);
+        }
+    }
+
+    let _ = app;
+    Ok(())
 }

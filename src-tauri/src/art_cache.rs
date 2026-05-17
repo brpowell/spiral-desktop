@@ -52,6 +52,17 @@ pub fn write_bytes_to_art_cache(
     Ok(dest)
 }
 
+pub fn ext_from_mime(format: &str) -> &'static str {
+    let lower = format.to_ascii_lowercase();
+    if lower.contains("png") {
+        "png"
+    } else if lower.contains("webp") {
+        "webp"
+    } else {
+        "jpg"
+    }
+}
+
 pub fn guess_ext_from_url(url: &str) -> &'static str {
     if url.contains(".png") {
         "png"

@@ -47,7 +47,7 @@ pub fn save_track(conn: &Connection, input: &TrackInput) -> Result<i64, rusqlite
             year = excluded.year,
             genre = excluded.genre,
             duration_seconds = excluded.duration_seconds,
-            art_path = excluded.art_path",
+            art_path = COALESCE(excluded.art_path, tracks.art_path)",
         params![
             input.title,
             input.artist,
@@ -162,4 +162,9 @@ pub fn get_track_by_id(conn: &Connection, id: i64) -> Result<Option<Track>, rusq
     } else {
         Ok(None)
     }
+}
+
+pub fn delete_track(conn: &Connection, id: i64) -> Result<bool, rusqlite::Error> {
+    let deleted = conn.execute("DELETE FROM tracks WHERE id = ?1", params![id])?;
+    Ok(deleted > 0)
 }

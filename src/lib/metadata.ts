@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import { parseBuffer } from "music-metadata";
+import { parseBuffer, type IAudioMetadata } from "music-metadata";
+import { cacheArtFromBytes } from "./tauri";
 import type { TrackInput } from "../types/track";
 
 const MIME_BY_EXT: Record<string, string> = {
@@ -31,6 +32,24 @@ function firstNumber(value: number | undefined): number | null {
   return value ?? null;
 }
 
+async function extractEmbeddedArt(
+  metadata: IAudioMetadata,
+  filePath: string,
+): Promise<string | null> {
+  const pictures = metadata.common.picture;
+  if (!pictures?.length) return null;
+
+  const pic = pictures[0];
+  if (!pic?.data?.length) return null;
+
+  try {
+    return await cacheArtFromBytes(Array.from(pic.data), filePath, pic.format);
+  } catch (err) {
+    console.warn(`Failed to cache embedded album art for ${filePath}:`, err);
+    return null;
+  }
+}
+
 export async function parseTrackMetadata(filePath: string): Promise<TrackInput> {
   const ext = extension(filePath);
   const mimeType = MIME_BY_EXT[ext] ?? "application/octet-stream";
@@ -40,6 +59,7 @@ export async function parseTrackMetadata(filePath: string): Promise<TrackInput> 
 
   const trackNo = metadata.common.track?.no;
   const discNo = metadata.common.disk?.no;
+  const artPath = await extractEmbeddedArt(metadata, filePath);
 
   return {
     title: firstString(metadata.common.title) ?? filenameTitle(filePath),
@@ -52,6 +72,6 @@ export async function parseTrackMetadata(filePath: string): Promise<TrackInput> 
     genre: firstString(metadata.common.genre),
     durationSeconds: firstNumber(metadata.format.duration),
     filePath,
-    artPath: null,
+    artPath,
   };
 }

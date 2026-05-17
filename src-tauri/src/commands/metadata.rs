@@ -30,6 +30,19 @@ pub fn cache_art_from_file(
 }
 
 #[tauri::command]
+pub fn cache_art_from_bytes(
+    app: AppHandle,
+    bytes: Vec<u8>,
+    file_path: String,
+    format: String,
+) -> Result<String, String> {
+    let ext = art_cache::ext_from_mime(&format);
+    let app_data = app_data_dir(&app)?;
+    let dest = art_cache::write_bytes_to_art_cache(&app_data, &file_path, &bytes, ext)?;
+    Ok(dest.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
 pub fn cache_art_from_url(
     app: AppHandle,
     url: String,

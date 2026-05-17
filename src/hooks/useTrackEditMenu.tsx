@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { RemoveTrackDialog } from "../components/RemoveTrackDialog/RemoveTrackDialog";
 import "../components/TrackRowMenu/TrackRowMenu.css";
 import { usePlayerStore } from "../store/usePlayerStore";
 import type { Track } from "../types/track";
 
 export function useTrackEditMenu(track: Track) {
   const openTrackEditor = usePlayerStore((s) => s.openTrackEditor);
+  const removeTrackFromLibrary = usePlayerStore((s) => s.removeTrackFromLibrary);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const openEditor = useCallback(() => {
@@ -47,10 +50,35 @@ export function useTrackEditMenu(track: Track) {
             <button type="button" role="menuitem" onClick={openEditor}>
               Edit Info
             </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="track-row-menu__danger"
+              onClick={() => {
+                setMenu(null);
+                setRemoveDialogOpen(true);
+              }}
+            >
+              Remove from Library
+            </button>
           </div>,
           document.body,
         )
       : null;
 
-  return { onContextMenu, openEditor, contextMenu };
+  const removeDialog =
+    removeDialogOpen
+      ? createPortal(
+          <RemoveTrackDialog
+            track={track}
+            onClose={() => setRemoveDialogOpen(false)}
+            onRemove={(deleteFromDisk) =>
+              removeTrackFromLibrary(track.id, deleteFromDisk)
+            }
+          />,
+          document.body,
+        )
+      : null;
+
+  return { onContextMenu, openEditor, contextMenu, removeDialog };
 }

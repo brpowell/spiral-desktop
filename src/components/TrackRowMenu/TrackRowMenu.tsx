@@ -10,7 +10,8 @@ interface TrackRowMenuProps {
 }
 
 export function TrackRowMenu({ track, children, className = "" }: TrackRowMenuProps) {
-  const { onContextMenu, openEditor, contextMenu } = useTrackEditMenu(track);
+  const { onContextMenu, openEditor, contextMenu, removeDialog } =
+    useTrackEditMenu(track);
 
   return (
     <div
@@ -30,6 +31,7 @@ export function TrackRowMenu({ track, children, className = "" }: TrackRowMenuPr
         <IconEditInfo />
       </button>
       {contextMenu}
+      {removeDialog}
     </div>
   );
 }

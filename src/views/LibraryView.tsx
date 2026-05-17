@@ -18,7 +18,8 @@ function LibraryTableRow({
   isActive: boolean;
   onPlay: () => void;
 }) {
-  const { onContextMenu, openEditor, contextMenu } = useTrackEditMenu(track);
+  const { onContextMenu, openEditor, contextMenu, removeDialog } =
+    useTrackEditMenu(track);
 
   return (
     <>
@@ -53,6 +54,7 @@ function LibraryTableRow({
       </td>
     </tr>
     {contextMenu}
+    {removeDialog}
     </>
   );
 }
