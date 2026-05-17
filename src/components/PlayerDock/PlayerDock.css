@@ -1,6 +1,1 @@
-.player-dock {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  z-index: 10;
-}
+/* PlayerDock renders NowPlayingBar for the app header */

@@ -2,13 +2,14 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as audio from "../../lib/audio";
-import { formatTime } from "../../lib/format";
+import { formatRemainingTime, formatTime } from "../../lib/format";
 import {
   getManualNextId,
   getManualPreviousId,
 } from "../../lib/playbackQueue";
 import { usePlayerStore } from "../../store/usePlayerStore";
 import type { RepeatMode } from "../../types/track";
+import { AudioVisualizer } from "../AudioVisualizer/AudioVisualizer";
 import {
   IconAlbumPlaceholder,
   IconNext,
@@ -22,7 +23,15 @@ import {
 } from "../icons";
 import "./NowPlayingBar.css";
 
-export function NowPlayingBar() {
+interface NowPlayingBarProps {
+  visualizerExpanded: boolean;
+  onToggleVisualizer: () => void;
+}
+
+export function NowPlayingBar({
+  visualizerExpanded,
+  onToggleVisualizer,
+}: NowPlayingBarProps) {
   const library = usePlayerStore((s) => s.library);
   const currentTrackId = usePlayerStore((s) => s.currentTrackId);
   const playbackState = usePlayerStore((s) => s.playbackState);
@@ -107,6 +116,10 @@ export function NowPlayingBar() {
     ? convertFileSrc(currentTrack.artPath)
     : null;
 
+  const subtitle = currentTrack
+    ? [currentTrack.artist, currentTrack.album].filter(Boolean).join(" — ")
+    : null;
+
   const handlePlayPause = useCallback(() => {
     if (playbackState === "playing") {
       pause();
@@ -129,32 +142,9 @@ export function NowPlayingBar() {
   };
 
   return (
-    <footer className="now-playing-bar" aria-label="Now playing">
+    <div className="now-playing-bar" aria-label="Now playing">
       <div
         className="now-playing-bar__left"
-        style={{ opacity: currentTrack ? 1 : 0.55 }}
-      >
-        <div className="now-playing-bar__art">
-          {artSrc ? (
-            <img src={artSrc} alt="" className="now-playing-bar__art-img" />
-          ) : (
-            <div className="now-playing-bar__art-placeholder" aria-hidden>
-              <IconAlbumPlaceholder />
-            </div>
-          )}
-        </div>
-        <div className="now-playing-bar__meta">
-          <span className="now-playing-bar__title">
-            {currentTrack?.title ?? "No track selected"}
-          </span>
-          <span className="now-playing-bar__artist">
-            {currentTrack?.artist ?? "Unknown artist"}
-          </span>
-        </div>
-      </div>
-
-      <div
-        className="now-playing-bar__center"
         style={{ opacity: currentTrackId ? 1 : 0.5 }}
       >
         <div className="now-playing-bar__transport">
@@ -227,54 +217,94 @@ export function NowPlayingBar() {
           </button>
         </div>
 
-        <div className="now-playing-bar__seek">
-          <span className="now-playing-bar__time">{formatTime(displayPosition)}</span>
+        <div className="now-playing-bar__volume">
+          <button
+            type="button"
+            className="now-playing-bar__btn now-playing-bar__btn--volume"
+            onClick={toggleMute}
+            aria-label={muted ? "Unmute" : "Mute"}
+          >
+            {muted ? <IconVolumeMute /> : <IconVolume />}
+          </button>
           <input
             type="range"
-            className="now-playing-bar__seek-input"
+            className="now-playing-bar__volume-input"
             min={0}
             max={1}
-            step={0.001}
-            value={isSeeking ? seekValue : progress}
-            disabled={!currentTrackId}
-            aria-label="Seek"
-            onPointerDown={handleSeekStart}
-            onChange={(e) => handleSeekChange(Number(e.currentTarget.value))}
-            onPointerUp={(e) =>
-              handleSeekEnd(Number(e.currentTarget.value))
-            }
-            onKeyUp={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleSeekEnd(Number(e.currentTarget.value));
-              }
-            }}
+            step={0.01}
+            value={volume}
+            aria-label="Volume"
+            onChange={(e) => setVolume(Number(e.currentTarget.value))}
           />
-          <span className="now-playing-bar__time">
-            {formatTime(durationSeconds)}
-          </span>
+        </div>
+      </div>
+
+      <div
+        className="now-playing-bar__center"
+        style={{ opacity: currentTrack ? 1 : 0.55 }}
+      >
+        <div className="now-playing-bar__widget">
+          <div className="now-playing-bar__art">
+            {artSrc ? (
+              <img src={artSrc} alt="" className="now-playing-bar__art-img" />
+            ) : (
+              <div className="now-playing-bar__art-placeholder" aria-hidden>
+                <IconAlbumPlaceholder />
+              </div>
+            )}
+          </div>
+
+          <div className="now-playing-bar__track-row">
+            <div className="now-playing-bar__track-text">
+              <span className="now-playing-bar__title">
+                {currentTrack?.title ?? "No track selected"}
+              </span>
+              <span className="now-playing-bar__subtitle">
+                {subtitle ?? "Unknown artist"}
+              </span>
+            </div>
+          </div>
+
+          <div className="now-playing-bar__progress-row">
+            <span className="now-playing-bar__time">
+              {formatTime(displayPosition)}
+            </span>
+            <input
+              type="range"
+              className="now-playing-bar__seek-input"
+              min={0}
+              max={1}
+              step={0.001}
+              value={isSeeking ? seekValue : progress}
+              disabled={!currentTrackId}
+              aria-label="Seek"
+              onPointerDown={handleSeekStart}
+              onChange={(e) =>
+                handleSeekChange(Number(e.currentTarget.value))
+              }
+              onPointerUp={(e) =>
+                handleSeekEnd(Number(e.currentTarget.value))
+              }
+              onKeyUp={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSeekEnd(Number(e.currentTarget.value));
+                }
+              }}
+            />
+            <span className="now-playing-bar__time now-playing-bar__time--remaining">
+              {formatRemainingTime(displayPosition, durationSeconds)}
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="now-playing-bar__right">
-        <button
-          type="button"
-          className="now-playing-bar__btn"
-          onClick={toggleMute}
-          aria-label={muted ? "Unmute" : "Mute"}
-        >
-          {muted ? <IconVolumeMute /> : <IconVolume />}
-        </button>
-        <input
-          type="range"
-          className="now-playing-bar__volume"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          aria-label="Volume"
-          onChange={(e) => setVolume(Number(e.currentTarget.value))}
+        <AudioVisualizer
+          variant="mini"
+          expanded={visualizerExpanded}
+          onToggleExpand={onToggleVisualizer}
         />
       </div>
-    </footer>
+    </div>
   );
 }

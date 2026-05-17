@@ -1,5 +1,6 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { ensureAnalyser, getAnalyser } from "../../lib/audioAnalyser";
 import {
   extractPaletteFromImageUrl,
@@ -10,6 +11,7 @@ import { IconVisualizer } from "../icons";
 import "./AudioVisualizer.css";
 
 interface AudioVisualizerProps {
+  variant?: "mini" | "dock";
   expanded: boolean;
   onToggleExpand: () => void;
 }
@@ -38,12 +40,21 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r}, ${g}, ${bl})`;
 }
 
+function resetCanvasSize(canvas: HTMLCanvasElement) {
+  canvas.width = 0;
+  canvas.height = 0;
+  canvas.style.width = "";
+  canvas.style.height = "";
+}
+
 export function AudioVisualizer({
+  variant = "dock",
   expanded,
   onToggleExpand,
 }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const expandedContainerRef = useRef<HTMLDivElement>(null);
   const paletteRef = useRef<string[]>(getDefaultPalette());
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const idlePhaseRef = useRef(0);
@@ -54,6 +65,8 @@ export function AudioVisualizer({
 
   const currentTrack = library.find((t) => t.id === currentTrackId);
   const isPlaying = playbackState === "playing";
+  const isMini = variant === "mini";
+  const showExpanded = isMini && expanded;
 
   useEffect(() => {
     let cancelled = false;
@@ -78,7 +91,9 @@ export function AudioVisualizer({
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
+    const container = showExpanded
+      ? expandedContainerRef.current
+      : containerRef.current;
     if (!canvas || !container) return;
 
     const ctx = canvas.getContext("2d");
@@ -157,7 +172,7 @@ export function AudioVisualizer({
         ctx.globalAlpha = 1;
       }
     }
-  }, [isPlaying]);
+  }, [isPlaying, showExpanded]);
 
   useEffect(() => {
     let rafId = 0;
@@ -172,21 +187,32 @@ export function AudioVisualizer({
   }, [draw]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const containers = [containerRef.current, expandedContainerRef.current].filter(
+      Boolean,
+    ) as HTMLDivElement[];
 
     const observer = new ResizeObserver(() => {
       draw();
     });
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [draw]);
 
-  return (
-    <div
-      className={`audio-visualizer${expanded ? " audio-visualizer--expanded" : ""}`}
-      ref={containerRef}
-    >
+    for (const el of containers) {
+      observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [draw, showExpanded]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    resetCanvasSize(canvas);
+    requestAnimationFrame(draw);
+  }, [showExpanded, draw]);
+
+  const renderVisualizer = (
+    ref: RefObject<HTMLDivElement | null>,
+    className: string,
+  ) => (
+    <div className={className} ref={ref}>
       <canvas ref={canvasRef} className="audio-visualizer__canvas" aria-hidden />
       <button
         type="button"
@@ -199,4 +225,30 @@ export function AudioVisualizer({
       </button>
     </div>
   );
+
+  if (isMini) {
+    return (
+      <>
+        {!showExpanded &&
+          renderVisualizer(
+            containerRef,
+            "audio-visualizer audio-visualizer--mini",
+          )}
+        {showExpanded &&
+          createPortal(
+            renderVisualizer(
+              expandedContainerRef,
+              "audio-visualizer audio-visualizer--expanded",
+            ),
+            document.body,
+          )}
+      </>
+    );
+  }
+
+  const dockClassName = expanded
+    ? "audio-visualizer audio-visualizer--expanded"
+    : "audio-visualizer";
+
+  return renderVisualizer(containerRef, dockClassName);
 }

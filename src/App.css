@@ -15,23 +15,21 @@ body {
   flex-direction: column;
   height: 100vh;
   background: var(--color-bg);
+  min-width: 800px;
+  min-height: 600px;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+.app-header {
   flex-shrink: 0;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
+  height: var(--app-header-height);
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface-raised) 40%, var(--color-surface)) 0%,
+    var(--color-surface) 100%
+  );
+  z-index: 15;
 }
 
 .error-banner {
@@ -59,11 +57,6 @@ body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-}
-
-.import-actions {
-  display: flex;
-  gap: 0.5rem;
 }
 
 button {

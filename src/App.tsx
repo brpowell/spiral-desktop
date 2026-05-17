@@ -8,8 +8,6 @@ import "./App.css";
 
 function App() {
   const loadLibrary = usePlayerStore((s) => s.loadLibrary);
-  const importTracks = usePlayerStore((s) => s.importTracks);
-  const importFolder = usePlayerStore((s) => s.importFolder);
   const importError = usePlayerStore((s) => s.importError);
   const clearImportError = usePlayerStore((s) => s.clearImportError);
 
@@ -19,16 +17,8 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>Spiral</h1>
-        <div className="import-actions">
-          <button type="button" onClick={() => importTracks()}>
-            Import files
-          </button>
-          <button type="button" onClick={() => importFolder()}>
-            Import folder
-          </button>
-        </div>
+      <header className="app-header">
+        <PlayerDock />
       </header>
 
       {importError && (
@@ -45,7 +35,6 @@ function App() {
         <MainContent />
       </div>
 
-      <PlayerDock />
       <TrackEditor />
     </div>
   );

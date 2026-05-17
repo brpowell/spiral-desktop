@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 import { ThemePicker } from "../ThemePicker/ThemePicker";
+import { usePlayerStore } from "../../store/usePlayerStore";
+import { useThemeStore } from "../../store/useThemeStore";
+import {
+  type NavView,
+  useNavigationStore,
+} from "../../store/useNavigationStore";
 import {
   IconAlbums,
   IconArtists,
@@ -7,11 +13,6 @@ import {
   IconPalette,
   IconPlaylists,
 } from "../icons";
-import { useThemeStore } from "../../store/useThemeStore";
-import {
-  type NavView,
-  useNavigationStore,
-} from "../../store/useNavigationStore";
 import "./Sidebar.css";
 
 const NAV_ITEMS: {
@@ -36,9 +37,24 @@ export function Sidebar() {
   const setView = useNavigationStore((s) => s.setView);
   const setThemePickerOpen = useThemeStore((s) => s.setThemePickerOpen);
   const loadThemes = useThemeStore((s) => s.loadThemes);
+  const importTracks = usePlayerStore((s) => s.importTracks);
+  const importFolder = usePlayerStore((s) => s.importFolder);
 
   return (
     <nav className="sidebar" aria-label="Main navigation">
+      <div className="sidebar__brand">
+        <span className="sidebar__brand-name">Spiral</span>
+      </div>
+
+      <div className="sidebar__import">
+        <button type="button" onClick={() => importTracks()}>
+          Import files
+        </button>
+        <button type="button" onClick={() => importFolder()}>
+          Import folder
+        </button>
+      </div>
+
       <ul className="sidebar__list">
         {NAV_ITEMS.map((item) => {
           const isActive = item.view === view;

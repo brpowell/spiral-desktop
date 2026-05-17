@@ -4,3 +4,11 @@ export function formatTime(seconds: number): string {
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
+
+export function formatRemainingTime(
+  elapsedSeconds: number,
+  totalSeconds: number,
+): string {
+  const remaining = Math.max(0, totalSeconds - elapsedSeconds);
+  return `-${formatTime(remaining)}`;
+}
