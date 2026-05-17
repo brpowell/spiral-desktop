@@ -108,6 +108,14 @@
   border-top: 1px solid var(--color-border);
 }
 
+.album-track-row-wrap {
+  display: block;
+}
+
+.album-track-row-wrap .album-track-row {
+  padding-right: 2.5rem;
+}
+
 .album-track-row {
   display: grid;
   grid-template-columns: 2.5rem 1fr auto;

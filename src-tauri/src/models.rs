@@ -20,6 +20,20 @@ pub struct Track {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TrackMetadataUpdate {
+    pub title: String,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub album_artist: Option<String>,
+    pub track_number: Option<i32>,
+    pub disc_number: Option<i32>,
+    pub year: Option<i32>,
+    pub genre: Option<String>,
+    pub art_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TrackInput {
     pub title: String,
     pub artist: Option<String>,

@@ -1,0 +1,63 @@
+.track-row-menu {
+  position: relative;
+}
+
+.track-row-menu__edit {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  opacity: 0;
+  border: none;
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 4px color-mix(in srgb, #000 25%, transparent);
+  transition: opacity 0.15s ease;
+  z-index: 1;
+}
+
+.track-row-menu:hover .track-row-menu__edit,
+.track-row-menu:focus-within .track-row-menu__edit {
+  opacity: 1;
+}
+
+.track-row-menu__edit:hover {
+  color: var(--color-accent);
+}
+
+.track-row-menu__edit svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.track-row-menu__popup {
+  position: fixed;
+  z-index: 900;
+  min-width: 140px;
+  padding: 0.25rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px color-mix(in srgb, #000 35%, transparent);
+}
+
+.track-row-menu__popup button {
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+}
+
+.track-row-menu__popup button:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
+}

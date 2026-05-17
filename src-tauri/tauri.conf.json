@@ -23,6 +23,8 @@
         "enable": true,
         "scope": [
           "$HOME/**/*",
+          "$APPLOCALDATA/**/*",
+          "$APPDATA/**/*",
           "$MUSIC/**/*",
           "$AUDIO/**/*",
           "$DOWNLOAD/**/*",

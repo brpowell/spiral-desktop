@@ -1,9 +1,61 @@
 import { useMemo, useState } from "react";
 import { formatTime } from "../lib/format";
-import { IconSearch } from "../components/icons";
+import { IconEditInfo, IconSearch } from "../components/icons";
+import { useTrackEditMenu } from "../hooks/useTrackEditMenu";
 import { usePlayerStore } from "../store/usePlayerStore";
 import type { Track } from "../types/track";
+import "../components/TrackRowMenu/TrackRowMenu.css";
 import "./LibraryView.css";
+
+function LibraryTableRow({
+  track,
+  index,
+  isActive,
+  onPlay,
+}: {
+  track: Track;
+  index: number;
+  isActive: boolean;
+  onPlay: () => void;
+}) {
+  const { onContextMenu, openEditor, contextMenu } = useTrackEditMenu(track);
+
+  return (
+    <>
+    <tr
+      className={
+        isActive
+          ? "library-table__row library-table__row--active track-row-menu"
+          : "library-table__row track-row-menu"
+      }
+      onClick={onPlay}
+      onContextMenu={onContextMenu}
+    >
+      <td className="library-table__num">{index + 1}</td>
+      <td>{track.title}</td>
+      <td>{track.artist ?? "—"}</td>
+      <td>{track.album ?? "—"}</td>
+      <td className="library-table__duration">
+        {track.durationSeconds != null ? formatTime(track.durationSeconds) : "—"}
+      </td>
+      <td className="library-table__actions">
+        <button
+          type="button"
+          className="track-row-menu__edit track-row-menu__edit--table"
+          aria-label="Edit track info"
+          onClick={(e) => {
+            e.stopPropagation();
+            openEditor();
+          }}
+        >
+          <IconEditInfo />
+        </button>
+      </td>
+    </tr>
+    {contextMenu}
+    </>
+  );
+}
 
 type SortField = "index" | "title" | "artist" | "album" | "duration";
 type SortDir = "asc" | "desc";
@@ -137,36 +189,25 @@ export function LibraryView({ tracks }: LibraryViewProps) {
                     Duration{sortIndicator("duration")}
                   </button>
                 </th>
+                <th className="library-table__actions-header" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
               {sortedTracks.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="library-table__no-results">
+                  <td colSpan={6} className="library-table__no-results">
                     No tracks match your search.
                   </td>
                 </tr>
               ) : (
                 sortedTracks.map((track, index) => (
-                  <tr
+                  <LibraryTableRow
                     key={track.id}
-                    className={
-                      track.id === currentTrackId
-                        ? "library-table__row library-table__row--active"
-                        : "library-table__row"
-                    }
-                    onClick={() => handlePlayRow(track)}
-                  >
-                    <td className="library-table__num">{index + 1}</td>
-                    <td>{track.title}</td>
-                    <td>{track.artist ?? "—"}</td>
-                    <td>{track.album ?? "—"}</td>
-                    <td className="library-table__duration">
-                      {track.durationSeconds != null
-                        ? formatTime(track.durationSeconds)
-                        : "—"}
-                    </td>
-                  </tr>
+                    track={track}
+                    index={index}
+                    isActive={track.id === currentTrackId}
+                    onPlay={() => handlePlayRow(track)}
+                  />
                 ))
               )}
             </tbody>

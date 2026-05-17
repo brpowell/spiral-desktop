@@ -1,5 +1,7 @@
+mod art_cache;
 mod commands;
 mod db;
+mod metadata_writer;
 mod models;
 
 use commands::library::DbState;
@@ -28,6 +30,11 @@ pub fn run() {
             commands::files::read_file_bytes,
             commands::library::save_track,
             commands::library::get_library,
+            commands::metadata::pick_image_file,
+            commands::metadata::cache_art_from_file,
+            commands::metadata::cache_art_from_url,
+            commands::metadata::fetch_cover_art,
+            commands::metadata::write_track_metadata,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

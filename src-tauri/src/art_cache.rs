@@ -1,0 +1,63 @@
+use sha2::{Digest, Sha256};
+use std::fs;
+use std::path::{Path, PathBuf};
+
+pub fn art_cache_dir(app_data_dir: &Path) -> PathBuf {
+    app_data_dir.join("art")
+}
+
+pub fn art_cache_key(file_path: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(file_path.as_bytes());
+    hex::encode(hasher.finalize())[..16].to_string()
+}
+
+fn extension_from_path(path: &Path) -> String {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_ascii_lowercase())
+        .filter(|e| matches!(e.as_str(), "jpg" | "jpeg" | "png" | "webp"))
+        .map(|e| if e == "jpeg" { "jpg".to_string() } else { e })
+        .unwrap_or_else(|| "jpg".to_string())
+}
+
+pub fn cached_art_path(app_data_dir: &Path, file_path: &str, source: &Path) -> PathBuf {
+    let ext = extension_from_path(source);
+    art_cache_dir(app_data_dir).join(format!("{}.{}", art_cache_key(file_path), ext.as_str()))
+}
+
+pub fn copy_to_art_cache(
+    app_data_dir: &Path,
+    file_path: &str,
+    source: &Path,
+) -> Result<PathBuf, String> {
+    let dest = cached_art_path(app_data_dir, file_path, source);
+    if let Some(parent) = dest.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    fs::copy(source, &dest).map_err(|e| format!("Failed to cache album art: {e}"))?;
+    Ok(dest)
+}
+
+pub fn write_bytes_to_art_cache(
+    app_data_dir: &Path,
+    file_path: &str,
+    bytes: &[u8],
+    ext: &str,
+) -> Result<PathBuf, String> {
+    let dir = art_cache_dir(app_data_dir);
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let dest = dir.join(format!("{}.{}", art_cache_key(file_path), ext));
+    fs::write(&dest, bytes).map_err(|e| format!("Failed to cache album art: {e}"))?;
+    Ok(dest)
+}
+
+pub fn guess_ext_from_url(url: &str) -> &'static str {
+    if url.contains(".png") {
+        "png"
+    } else if url.contains(".webp") {
+        "webp"
+    } else {
+        "jpg"
+    }
+}

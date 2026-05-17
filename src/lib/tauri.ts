@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import type { TrackMetadataUpdate } from "../types/metadata";
 import type { Track, TrackInput } from "../types/track";
 
 /** Normalize track JSON in case serde casing differs at the IPC boundary. */
@@ -52,4 +53,42 @@ export async function saveTrack(track: TrackInput): Promise<number> {
 export async function getLibrary(): Promise<Track[]> {
   const rows = await invoke<Record<string, unknown>[]>("get_library");
   return rows.map(normalizeTrack);
+}
+
+export async function pickImageFile(): Promise<string | null> {
+  return invoke<string | null>("pick_image_file");
+}
+
+export async function cacheArtFromFile(
+  sourcePath: string,
+  filePath: string,
+): Promise<string> {
+  return invoke<string>("cache_art_from_file", { sourcePath, filePath });
+}
+
+export async function cacheArtFromUrl(
+  url: string,
+  filePath: string,
+): Promise<string> {
+  return invoke<string>("cache_art_from_url", { url, filePath });
+}
+
+export async function fetchCoverArt(
+  artist: string,
+  album: string,
+): Promise<string[]> {
+  return invoke<string[]>("fetch_cover_art", { artist, album });
+}
+
+export async function writeTrackMetadata(
+  trackId: number,
+  filePath: string,
+  metadata: TrackMetadataUpdate,
+): Promise<Track> {
+  const raw = await invoke<Record<string, unknown>>("write_track_metadata", {
+    trackId,
+    filePath,
+    metadata,
+  });
+  return normalizeTrack(raw);
 }

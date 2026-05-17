@@ -13,6 +13,7 @@ interface PlayerState {
   volume: number;
   muted: boolean;
   importError: string | null;
+  editingTrackId: number | null;
 
   loadLibrary: () => Promise<void>;
   importTracks: () => Promise<void>;
@@ -28,6 +29,9 @@ interface PlayerState {
   toggleMute: () => void;
   setQueue: (ids: number[]) => void;
   clearImportError: () => void;
+  openTrackEditor: (id: number) => void;
+  closeTrackEditor: () => void;
+  updateTrackInLibrary: (track: Track) => void;
 }
 
 function ensureQueue(set: (partial: Partial<PlayerState>) => void, get: () => PlayerState): number[] {
@@ -73,6 +77,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     volume: 1,
     muted: false,
     importError: null,
+    editingTrackId: null,
 
     loadLibrary: async () => {
       try {
@@ -214,5 +219,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
 
     setQueue: (ids) => set({ queue: ids }),
     clearImportError: () => set({ importError: null }),
+
+    openTrackEditor: (id) => set({ editingTrackId: id }),
+    closeTrackEditor: () => set({ editingTrackId: null }),
+    updateTrackInLibrary: (track) =>
+      set((state) => ({
+        library: state.library.map((t) => (t.id === track.id ? track : t)),
+      })),
   };
 });

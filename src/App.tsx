@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { PlayerDock } from "./components/PlayerDock/PlayerDock";
+import { TrackEditor } from "./components/TrackEditor/TrackEditor";
 import { MainContent } from "./components/layout/MainContent";
 import { Sidebar } from "./components/layout/Sidebar";
 import { usePlayerStore } from "./store/usePlayerStore";
@@ -45,6 +46,7 @@ function App() {
       </div>
 
       <PlayerDock />
+      <TrackEditor />
     </div>
   );
 }

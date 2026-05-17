@@ -1,6 +1,7 @@
 import { albumTotalDurationSeconds, getAlbumByKey } from "../lib/albums";
 import { formatTime } from "../lib/format";
 import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { TrackRowMenu } from "../components/TrackRowMenu/TrackRowMenu";
 import { IconBack, IconPlay } from "../components/icons";
 import { useNavigationStore } from "../store/useNavigationStore";
 import { usePlayerStore } from "../store/usePlayerStore";
@@ -85,25 +86,27 @@ export function AlbumDetailView({ albums, albumKey }: AlbumDetailViewProps) {
       <ol className="album-detail__tracks">
         {album.tracks.map((track) => (
           <li key={track.id}>
-            <button
-              type="button"
-              className={
-                track.id === currentTrackId
-                  ? "album-track-row album-track-row--active"
-                  : "album-track-row"
-              }
-              onClick={() => handlePlayTrack(track)}
-            >
-              <span className="album-track-row__num">
-                {track.trackNumber ?? "—"}
-              </span>
-              <span className="album-track-row__title">{track.title}</span>
-              <span className="album-track-row__duration">
-                {track.durationSeconds != null
-                  ? formatTime(track.durationSeconds)
-                  : "—"}
-              </span>
-            </button>
+            <TrackRowMenu track={track} className="album-track-row-wrap">
+              <button
+                type="button"
+                className={
+                  track.id === currentTrackId
+                    ? "album-track-row album-track-row--active"
+                    : "album-track-row"
+                }
+                onClick={() => handlePlayTrack(track)}
+              >
+                <span className="album-track-row__num">
+                  {track.trackNumber ?? "—"}
+                </span>
+                <span className="album-track-row__title">{track.title}</span>
+                <span className="album-track-row__duration">
+                  {track.durationSeconds != null
+                    ? formatTime(track.durationSeconds)
+                    : "—"}
+                </span>
+              </button>
+            </TrackRowMenu>
           </li>
         ))}
       </ol>

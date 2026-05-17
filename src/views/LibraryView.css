@@ -105,6 +105,29 @@
 
 .library-table__row {
   cursor: pointer;
+  position: relative;
+}
+
+.library-table__actions-header {
+  width: 2.5rem;
+  padding: 0;
+}
+
+.library-table__actions {
+  width: 2.5rem;
+  padding: 0.25rem;
+  text-align: center;
+}
+
+.track-row-menu__edit--table {
+  position: static;
+  transform: none;
+  opacity: 0;
+}
+
+.library-table__row:hover .track-row-menu__edit--table,
+.library-table__row:focus-within .track-row-menu__edit--table {
+  opacity: 1;
 }
 
 .library-table__row:hover td {
