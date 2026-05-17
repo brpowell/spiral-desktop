@@ -1,0 +1,51 @@
+# Spiral
+
+**Your music. Owned. Organized. Beautiful.**
+
+Spiral is a modern desktop music player built for people who still believe in owning their music. No streaming. No ads. No algorithms deciding what you should hear. Just your collection — ripped, organized, and played back the way you want.
+
+It's the spiritual successor to the classic media player era: the tactile satisfaction of iTunes at its peak, the personality of Winamp, rebuilt with the tools of today.
+
+---
+
+## What it is
+
+A local-first desktop app for managing and enjoying a personal music library. You bring the files (or rip them from CD), Tuned handles everything else — metadata, album art, playlists, and a playback experience that actually feels good to use.
+
+---
+
+## Core features
+
+- **Library management** — Import music from your filesystem. Tuned reads your tags, organizes by artist and album, and keeps everything in a fast local SQLite database.
+- **CD ripping** — Insert a disc, fetch metadata from MusicBrainz, rip to FLAC or MP3. Your shelf becomes your library.
+- **Metadata editing** — Fix tags, swap album art, rename tracks. Full control, no cloud required.
+- **Playlists** — Build and manage playlists the old-fashioned way: by hand, with taste.
+- **Visualizations** — Audio-reactive visuals that make listening feel like an event. Spectrum analyzers, waveforms, and more.
+- **Themes** — Swap the entire look of the app with a theme file. Dark, light, warm, cold — make it yours.
+
+---
+
+## Philosophy
+
+> The best music experience isn't the one with the most songs. It's the one that makes you care about the songs you have.
+
+Streaming is convenient. But it's also forgettable — infinite content with no gravity, no ownership, no ritual. Tuned is for the other mode: sitting down, picking an album, and actually listening.
+
+This app is built around that intention.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Shell | Tauri (Rust + WebView) |
+| UI | React + Tailwind CSS + Framer Motion |
+| Audio | Howler.js + Web Audio API |
+| Visualizations | Canvas / WebGL |
+| CD Ripping | ffmpeg + cdparanoia / OS tools |
+| Metadata | MusicBrainz API + Cover Art Archive |
+| Database | SQLite via better-sqlite3 |
+| Theming | CSS custom properties + JSON theme files |
+
+---
