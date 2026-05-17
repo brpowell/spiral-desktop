@@ -1,12 +1,14 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { albumKey } from "../../lib/albums";
 import * as audio from "../../lib/audio";
 import { formatRemainingTime, formatTime } from "../../lib/format";
 import {
   getManualNextId,
   getManualPreviousId,
 } from "../../lib/playbackQueue";
+import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlayerStore } from "../../store/usePlayerStore";
 import type { RepeatMode } from "../../types/track";
 import { AudioVisualizer } from "../AudioVisualizer/AudioVisualizer";
@@ -49,6 +51,7 @@ export function NowPlayingBar({
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
   const setVolume = usePlayerStore((s) => s.setVolume);
   const toggleMute = usePlayerStore((s) => s.toggleMute);
+  const openAlbum = useNavigationStore((s) => s.openAlbum);
 
   const currentTrack = useMemo(
     () => library.find((t) => t.id === currentTrackId),
@@ -140,6 +143,16 @@ export function NowPlayingBar({
     setIsSeeking(false);
     seek(value);
   };
+
+  const handleArtClick = useCallback(() => {
+    if (currentTrack) {
+      openAlbum(albumKey(currentTrack));
+    }
+  }, [currentTrack, openAlbum]);
+
+  const artLabel = currentTrack?.album
+    ? `View album ${currentTrack.album}`
+    : "View album";
 
   return (
     <div className="now-playing-bar" aria-label="Now playing">
@@ -244,7 +257,13 @@ export function NowPlayingBar({
         style={{ opacity: currentTrack ? 1 : 0.55 }}
       >
         <div className="now-playing-bar__widget">
-          <div className="now-playing-bar__art">
+          <button
+            type="button"
+            className="now-playing-bar__art"
+            onClick={handleArtClick}
+            disabled={!currentTrack}
+            aria-label={artLabel}
+          >
             {artSrc ? (
               <img src={artSrc} alt="" className="now-playing-bar__art-img" />
             ) : (
@@ -252,7 +271,7 @@ export function NowPlayingBar({
                 <IconAlbumPlaceholder />
               </div>
             )}
-          </div>
+          </button>
 
           <div className="now-playing-bar__track-row">
             <div className="now-playing-bar__track-text">
