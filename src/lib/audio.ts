@@ -1,5 +1,6 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
+import { ensureAnalyser } from "./audioAnalyser";
 
 let sound: Howl | null = null;
 let endCallback: (() => void) | null = null;
@@ -27,7 +28,7 @@ export function load(path: string): Promise<void> {
       onend: () => void;
     } = {
       src: [src],
-      html5: true,
+      html5: false,
       onload: () => resolve(),
       onloaderror: (_id, err) => {
         reject(new Error(`Failed to load audio (${src}): ${String(err)}`));
@@ -56,6 +57,7 @@ export function unload(): void {
 }
 
 export function play(): void {
+  ensureAnalyser();
   sound?.play();
 }
 
@@ -88,4 +90,16 @@ export function isPlaying(): boolean {
 
 export function onEnd(callback: () => void): void {
   endCallback = callback;
+}
+
+export function setVolume(volume: number): void {
+  Howler.volume(Math.max(0, Math.min(1, volume)));
+}
+
+export function getVolume(): number {
+  return Howler.volume();
+}
+
+export function setMuted(muted: boolean): void {
+  Howler.mute(muted);
 }

@@ -1,0 +1,240 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import * as audio from "../../lib/audio";
+import { formatTime } from "../../lib/format";
+import { usePlayerStore } from "../../store/usePlayerStore";
+import {
+  IconAlbumPlaceholder,
+  IconNext,
+  IconPause,
+  IconPlay,
+  IconPrevious,
+  IconVolume,
+  IconVolumeMute,
+} from "../icons";
+import "./NowPlayingBar.css";
+
+export function NowPlayingBar() {
+  const library = usePlayerStore((s) => s.library);
+  const currentTrackId = usePlayerStore((s) => s.currentTrackId);
+  const playbackState = usePlayerStore((s) => s.playbackState);
+  const positionSeconds = usePlayerStore((s) => s.positionSeconds);
+  const queue = usePlayerStore((s) => s.queue);
+  const volume = usePlayerStore((s) => s.volume);
+  const muted = usePlayerStore((s) => s.muted);
+  const pause = usePlayerStore((s) => s.pause);
+  const resume = usePlayerStore((s) => s.resume);
+  const playTrack = usePlayerStore((s) => s.playTrack);
+  const seek = usePlayerStore((s) => s.seek);
+  const previousTrack = usePlayerStore((s) => s.previousTrack);
+  const nextTrack = usePlayerStore((s) => s.nextTrack);
+  const setVolume = usePlayerStore((s) => s.setVolume);
+  const toggleMute = usePlayerStore((s) => s.toggleMute);
+
+  const currentTrack = useMemo(
+    () => library.find((t) => t.id === currentTrackId),
+    [library, currentTrackId],
+  );
+
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekValue, setSeekValue] = useState(0);
+  const [livePosition, setLivePosition] = useState(0);
+
+  const durationSeconds =
+    currentTrack?.durationSeconds ?? audio.getDurationSeconds();
+
+  const canNavigate = queue.length > 0 || library.length > 0;
+
+  useEffect(() => {
+    if (!isSeeking) {
+      setSeekValue(
+        durationSeconds > 0 ? positionSeconds / durationSeconds : 0,
+      );
+    }
+  }, [positionSeconds, durationSeconds, isSeeking]);
+
+  useEffect(() => {
+    if (playbackState !== "playing" || isSeeking) {
+      setLivePosition(positionSeconds);
+      return;
+    }
+
+    let frame = 0;
+    const tick = () => {
+      setLivePosition(audio.getPositionSeconds());
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playbackState, isSeeking, positionSeconds, currentTrackId]);
+
+  const displayPosition = isSeeking
+    ? seekValue * durationSeconds
+    : playbackState === "playing"
+      ? livePosition
+      : positionSeconds;
+
+  const progress = durationSeconds > 0 ? displayPosition / durationSeconds : 0;
+
+  const artSrc = currentTrack?.artPath
+    ? convertFileSrc(currentTrack.artPath)
+    : null;
+
+  const handlePlayPause = useCallback(() => {
+    if (playbackState === "playing") {
+      pause();
+    } else if (currentTrackId && playbackState === "paused") {
+      resume();
+    } else if (currentTrackId) {
+      void playTrack(currentTrackId);
+    }
+  }, [playbackState, currentTrackId, pause, resume, playTrack]);
+
+  const handleSeekStart = () => setIsSeeking(true);
+
+  const handleSeekChange = (value: number) => {
+    setSeekValue(value);
+  };
+
+  const handleSeekEnd = (value: number) => {
+    setIsSeeking(false);
+    seek(value);
+  };
+
+  return (
+    <footer className="now-playing-bar" aria-label="Now playing">
+      <div
+        className="now-playing-bar__left"
+        style={{ opacity: currentTrack ? 1 : 0.55 }}
+      >
+        <div className="now-playing-bar__art">
+          {artSrc ? (
+            <img src={artSrc} alt="" className="now-playing-bar__art-img" />
+          ) : (
+            <div className="now-playing-bar__art-placeholder" aria-hidden>
+              <IconAlbumPlaceholder />
+            </div>
+          )}
+        </div>
+        <div className="now-playing-bar__meta">
+          <span className="now-playing-bar__title">
+            {currentTrack?.title ?? "No track selected"}
+          </span>
+          <span className="now-playing-bar__artist">
+            {currentTrack?.artist ?? "Unknown artist"}
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="now-playing-bar__center"
+        style={{ opacity: currentTrackId ? 1 : 0.5 }}
+      >
+        <div className="now-playing-bar__transport">
+          <button
+            type="button"
+            className="now-playing-bar__btn"
+            onClick={previousTrack}
+            disabled={!canNavigate || !currentTrackId}
+            aria-label="Previous track"
+          >
+            <IconPrevious />
+          </button>
+
+          <button
+            type="button"
+            className="now-playing-bar__btn now-playing-bar__btn--play"
+            onClick={handlePlayPause}
+            disabled={!currentTrackId}
+            aria-label={playbackState === "playing" ? "Pause" : "Play"}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {playbackState === "playing" ? (
+                <motion.span
+                  key="pause"
+                  className="now-playing-bar__play-icon"
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <IconPause />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="play"
+                  className="now-playing-bar__play-icon"
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <IconPlay />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+
+          <button
+            type="button"
+            className="now-playing-bar__btn"
+            onClick={nextTrack}
+            disabled={!canNavigate || !currentTrackId}
+            aria-label="Next track"
+          >
+            <IconNext />
+          </button>
+        </div>
+
+        <div className="now-playing-bar__seek">
+          <span className="now-playing-bar__time">{formatTime(displayPosition)}</span>
+          <input
+            type="range"
+            className="now-playing-bar__seek-input"
+            min={0}
+            max={1}
+            step={0.001}
+            value={isSeeking ? seekValue : progress}
+            disabled={!currentTrackId}
+            aria-label="Seek"
+            onPointerDown={handleSeekStart}
+            onChange={(e) => handleSeekChange(Number(e.currentTarget.value))}
+            onPointerUp={(e) =>
+              handleSeekEnd(Number(e.currentTarget.value))
+            }
+            onKeyUp={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                handleSeekEnd(Number(e.currentTarget.value));
+              }
+            }}
+          />
+          <span className="now-playing-bar__time">
+            {formatTime(durationSeconds)}
+          </span>
+        </div>
+      </div>
+
+      <div className="now-playing-bar__right">
+        <button
+          type="button"
+          className="now-playing-bar__btn"
+          onClick={toggleMute}
+          aria-label={muted ? "Unmute" : "Mute"}
+        >
+          {muted ? <IconVolumeMute /> : <IconVolume />}
+        </button>
+        <input
+          type="range"
+          className="now-playing-bar__volume"
+          min={0}
+          max={1}
+          step={0.01}
+          value={volume}
+          aria-label="Volume"
+          onChange={(e) => setVolume(Number(e.currentTarget.value))}
+        />
+      </div>
+    </footer>
+  );
+}

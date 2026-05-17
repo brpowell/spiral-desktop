@@ -10,6 +10,8 @@ interface PlayerState {
   currentTrackId: number | null;
   playbackState: PlaybackState;
   positionSeconds: number;
+  volume: number;
+  muted: boolean;
   importError: string | null;
 
   loadLibrary: () => Promise<void>;
@@ -19,8 +21,22 @@ interface PlayerState {
   pause: () => void;
   resume: () => void;
   seek: (ratio: number) => void;
+  previousTrack: () => void;
+  nextTrack: () => void;
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
   setQueue: (ids: number[]) => void;
   clearImportError: () => void;
+}
+
+function ensureQueue(set: (partial: Partial<PlayerState>) => void, get: () => PlayerState): number[] {
+  const { queue, library } = get();
+  if (queue.length > 0) return queue;
+  const ids = library.map((t) => t.id);
+  if (ids.length > 0) {
+    set({ queue: ids });
+  }
+  return ids;
 }
 
 let positionInterval: ReturnType<typeof setInterval> | null = null;
@@ -53,6 +69,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     currentTrackId: null,
     playbackState: "stopped",
     positionSeconds: 0,
+    volume: 1,
+    muted: false,
     importError: null,
 
     loadLibrary: async () => {
@@ -106,6 +124,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       const track = get().library.find((t) => t.id === id);
       if (!track) return;
 
+      ensureQueue(set, get);
       set({ importError: null });
       try {
         await audio.load(track.filePath);
@@ -141,6 +160,48 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     seek: (ratio) => {
       audio.seek(ratio);
       set({ positionSeconds: audio.getPositionSeconds() });
+    },
+
+    previousTrack: () => {
+      const { currentTrackId } = get();
+      const queue = ensureQueue(set, get);
+      if (!currentTrackId || queue.length === 0) return;
+      const idx = queue.indexOf(currentTrackId);
+      const prevIdx = idx <= 0 ? queue.length - 1 : idx - 1;
+      void get().playTrack(queue[prevIdx]!);
+    },
+
+    nextTrack: () => {
+      const { currentTrackId } = get();
+      const queue = ensureQueue(set, get);
+      if (!currentTrackId || queue.length === 0) return;
+      const idx = queue.indexOf(currentTrackId);
+      const nextIdx = idx < 0 ? 0 : (idx + 1) % queue.length;
+      void get().playTrack(queue[nextIdx]!);
+    },
+
+    setVolume: (volume) => {
+      const clamped = Math.max(0, Math.min(1, volume));
+      const muted = get().muted;
+      if (!muted) {
+        audio.setVolume(clamped);
+      }
+      if (clamped > 0 && muted) {
+        audio.setMuted(false);
+        audio.setVolume(clamped);
+        set({ volume: clamped, muted: false });
+        return;
+      }
+      set({ volume: clamped });
+    },
+
+    toggleMute: () => {
+      const muted = !get().muted;
+      audio.setMuted(muted);
+      if (!muted) {
+        audio.setVolume(get().volume);
+      }
+      set({ muted });
     },
 
     setQueue: (ids) => set({ queue: ids }),

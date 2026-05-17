@@ -1,0 +1,17 @@
+:root {
+  --color-bg: #0d0d0f;
+  --color-surface: #16161a;
+  --color-surface-raised: #1e1e24;
+  --color-border: #2a2a32;
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #9898a8;
+  --color-accent: #7c6af7;
+  --color-accent-muted: #4a3f9e;
+  --color-danger: #e85d5d;
+  --color-danger-bg: #2a1515;
+
+  --now-playing-height: 88px;
+  --visualizer-height: 140px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+}

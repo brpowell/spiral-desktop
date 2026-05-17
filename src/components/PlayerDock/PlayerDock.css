@@ -1,0 +1,6 @@
+.player-dock {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 10;
+}
