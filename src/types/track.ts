@@ -1,5 +1,8 @@
 export type PlaybackState = "playing" | "paused" | "stopped";
 
+/** off = play queue once; all = loop queue; one = loop current track */
+export type RepeatMode = "off" | "all" | "one";
+
 export interface Track {
   id: number;
   title: string;

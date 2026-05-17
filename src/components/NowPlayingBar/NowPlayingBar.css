@@ -128,6 +128,20 @@
   color: var(--color-text-primary);
 }
 
+.now-playing-bar__btn--repeat {
+  width: 32px;
+  height: 32px;
+}
+
+.now-playing-bar__btn--repeat svg {
+  width: 20px;
+  height: 20px;
+}
+
+.now-playing-bar__btn--repeat-active {
+  color: var(--color-accent);
+}
+
 .now-playing-bar__play-icon {
   display: flex;
   align-items: center;

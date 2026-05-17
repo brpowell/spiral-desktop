@@ -2,7 +2,13 @@ import { create } from "zustand";
 import * as audio from "../lib/audio";
 import { importPaths } from "../lib/import";
 import { getLibrary, pickAudioFiles, pickFolder, removeTrack } from "../lib/tauri";
-import type { PlaybackState, Track } from "../types/track";
+import {
+  cycleRepeatMode,
+  getAutoplayNextId,
+  getManualNextId,
+  getManualPreviousId,
+} from "../lib/playbackQueue";
+import type { PlaybackState, RepeatMode, Track } from "../types/track";
 
 interface PlayerState {
   library: Track[];
@@ -13,6 +19,7 @@ interface PlayerState {
   positionSeconds: number;
   volume: number;
   muted: boolean;
+  repeatMode: RepeatMode;
   importError: string | null;
   editingTrackId: number | null;
 
@@ -30,6 +37,7 @@ interface PlayerState {
   setVolume: (volume: number) => void;
   toggleMute: () => void;
   setQueue: (ids: number[]) => void;
+  cycleRepeat: () => void;
   clearImportError: () => void;
   openTrackEditor: (id: number) => void;
   closeTrackEditor: () => void;
@@ -67,6 +75,20 @@ function startPositionPoll(
 
 export const usePlayerStore = create<PlayerState>((set, get) => {
   audio.onEnd(() => {
+    const { currentTrackId, repeatMode } = get();
+    if (!currentTrackId) {
+      stopPositionPoll();
+      set({ playbackState: "stopped", positionSeconds: 0 });
+      return;
+    }
+
+    const queue = ensureQueue(set, get);
+    const nextId = getAutoplayNextId(queue, currentTrackId, repeatMode);
+    if (nextId !== null) {
+      void get().playTrack(nextId);
+      return;
+    }
+
     stopPositionPoll();
     set({ playbackState: "stopped", positionSeconds: 0 });
   });
@@ -80,6 +102,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     positionSeconds: 0,
     volume: 1,
     muted: false,
+    repeatMode: "off",
     importError: null,
     editingTrackId: null,
 
@@ -183,21 +206,19 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     },
 
     previousTrack: () => {
-      const { currentTrackId } = get();
+      const { currentTrackId, repeatMode } = get();
       const queue = ensureQueue(set, get);
       if (!currentTrackId || queue.length === 0) return;
-      const idx = queue.indexOf(currentTrackId);
-      const prevIdx = idx <= 0 ? queue.length - 1 : idx - 1;
-      void get().playTrack(queue[prevIdx]!);
+      const prevId = getManualPreviousId(queue, currentTrackId, repeatMode);
+      if (prevId !== null) void get().playTrack(prevId);
     },
 
     nextTrack: () => {
-      const { currentTrackId } = get();
+      const { currentTrackId, repeatMode } = get();
       const queue = ensureQueue(set, get);
       if (!currentTrackId || queue.length === 0) return;
-      const idx = queue.indexOf(currentTrackId);
-      const nextIdx = idx < 0 ? 0 : (idx + 1) % queue.length;
-      void get().playTrack(queue[nextIdx]!);
+      const nextId = getManualNextId(queue, currentTrackId, repeatMode);
+      if (nextId !== null) void get().playTrack(nextId);
     },
 
     setVolume: (volume) => {
@@ -225,6 +246,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     },
 
     setQueue: (ids) => set({ queue: ids }),
+    cycleRepeat: () =>
+      set((state) => ({ repeatMode: cycleRepeatMode(state.repeatMode) })),
     clearImportError: () => set({ importError: null }),
 
     openTrackEditor: (id) => set({ editingTrackId: id }),

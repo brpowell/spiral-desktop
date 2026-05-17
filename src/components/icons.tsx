@@ -18,6 +18,23 @@ export function IconNext(props: IconProps) {
   );
 }
 
+export function IconRepeat(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
+      <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+    </svg>
+  );
+}
+
+export function IconRepeatOne(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
+      <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+      <path d="M13 15V9h-1v6h1zm-1-3h2v2h-2v-2z" />
+    </svg>
+  );
+}
+
 export function IconPlay(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>

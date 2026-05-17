@@ -3,13 +3,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as audio from "../../lib/audio";
 import { formatTime } from "../../lib/format";
+import {
+  getManualNextId,
+  getManualPreviousId,
+} from "../../lib/playbackQueue";
 import { usePlayerStore } from "../../store/usePlayerStore";
+import type { RepeatMode } from "../../types/track";
 import {
   IconAlbumPlaceholder,
   IconNext,
   IconPause,
   IconPlay,
   IconPrevious,
+  IconRepeat,
+  IconRepeatOne,
   IconVolume,
   IconVolumeMute,
 } from "../icons";
@@ -21,6 +28,7 @@ export function NowPlayingBar() {
   const playbackState = usePlayerStore((s) => s.playbackState);
   const positionSeconds = usePlayerStore((s) => s.positionSeconds);
   const queue = usePlayerStore((s) => s.queue);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
   const volume = usePlayerStore((s) => s.volume);
   const muted = usePlayerStore((s) => s.muted);
   const pause = usePlayerStore((s) => s.pause);
@@ -29,6 +37,7 @@ export function NowPlayingBar() {
   const seek = usePlayerStore((s) => s.seek);
   const previousTrack = usePlayerStore((s) => s.previousTrack);
   const nextTrack = usePlayerStore((s) => s.nextTrack);
+  const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
   const setVolume = usePlayerStore((s) => s.setVolume);
   const toggleMute = usePlayerStore((s) => s.toggleMute);
 
@@ -44,7 +53,24 @@ export function NowPlayingBar() {
   const durationSeconds =
     currentTrack?.durationSeconds ?? audio.getDurationSeconds();
 
-  const canNavigate = queue.length > 0 || library.length > 0;
+  const activeQueue =
+    queue.length > 0 ? queue : library.map((t) => t.id);
+
+  const canGoPrevious =
+    currentTrackId !== null &&
+    activeQueue.length > 0 &&
+    getManualPreviousId(activeQueue, currentTrackId, repeatMode) !== null;
+
+  const canGoNext =
+    currentTrackId !== null &&
+    activeQueue.length > 0 &&
+    getManualNextId(activeQueue, currentTrackId, repeatMode) !== null;
+
+  const repeatLabel: Record<RepeatMode, string> = {
+    off: "Repeat off",
+    all: "Repeat all",
+    one: "Repeat one",
+  };
 
   useEffect(() => {
     if (!isSeeking) {
@@ -134,9 +160,23 @@ export function NowPlayingBar() {
         <div className="now-playing-bar__transport">
           <button
             type="button"
+            className={`now-playing-bar__btn now-playing-bar__btn--repeat${
+              repeatMode !== "off"
+                ? " now-playing-bar__btn--repeat-active"
+                : ""
+            }`}
+            onClick={cycleRepeat}
+            aria-label={repeatLabel[repeatMode]}
+            title={repeatLabel[repeatMode]}
+          >
+            {repeatMode === "one" ? <IconRepeatOne /> : <IconRepeat />}
+          </button>
+
+          <button
+            type="button"
             className="now-playing-bar__btn"
             onClick={previousTrack}
-            disabled={!canNavigate || !currentTrackId}
+            disabled={!canGoPrevious}
             aria-label="Previous track"
           >
             <IconPrevious />
@@ -180,7 +220,7 @@ export function NowPlayingBar() {
             type="button"
             className="now-playing-bar__btn"
             onClick={nextTrack}
-            disabled={!canNavigate || !currentTrackId}
+            disabled={!canGoNext}
             aria-label="Next track"
           >
             <IconNext />
