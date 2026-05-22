@@ -154,8 +154,24 @@ export function IconArtists(props: IconProps) {
 
 export function IconPlaylists(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
-      <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
+      <path d="M16 5H3" />
+      <path d="M11 12H3" />
+      <path d="M11 19H3" />
+      <path d="M21 16V5" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  );
+}
+
+export function IconPlaylistAdd(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
+      <path d="M16 5H3" />
+      <path d="M11 12H3" />
+      <path d="M16 19H3" />
+      <path d="M18 9v6" />
+      <path d="M21 12h-6" />
     </svg>
   );
 }
@@ -218,16 +234,23 @@ export function IconHelp(props: IconProps) {
 
 export function IconAddToQueue(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
-      <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm15.59-3.41L17 11.17V21h2v-9.83l1.59 1.59L22 11l-4.41-4.41z" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
+      <path d="M16 5H3" />
+      <path d="M16 12H3" />
+      <path d="M9 19H3" />
+      <path d="m16 16-3 3 3 3" />
+      <path d="M21 5v12a2 2 0 0 1-2 2h-6" />
     </svg>
   );
 }
 
 export function IconRemoveFromQueue(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
-      <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm4.41 2.59L8 13.17V21h2v-7.83l1.59 1.59L16 11l-4.41-4.41z" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
+      <path d="M21 5H11" />
+      <path d="M21 12H11" />
+      <path d="M21 19H11" />
+      <path d="m7 8-4 4 4 4" />
     </svg>
   );
 }

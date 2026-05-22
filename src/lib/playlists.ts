@@ -30,16 +30,10 @@ export function recentPlaylists(
     .slice(0, limit);
 }
 
-export function allPlaylistsExcludingRecent(
-  playlists: Playlist[],
-  recent: Playlist[],
-): Playlist[] {
-  const recentIds = new Set(recent.map((p) => p.id));
-  return [...playlists]
-    .filter((p) => !recentIds.has(p.id))
-    .sort((a, b) =>
-      a.title.localeCompare(b.title, undefined, { sensitivity: "base" }),
-    );
+export function sortedPlaylists(playlists: Playlist[]): Playlist[] {
+  return [...playlists].sort((a, b) =>
+    a.title.localeCompare(b.title, undefined, { sensitivity: "base" }),
+  );
 }
 
 export function getPlaylistById(

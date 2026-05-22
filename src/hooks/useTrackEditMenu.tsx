@@ -12,13 +12,11 @@ import {
   IconAddToQueue,
   IconDelete,
   IconEditInfo,
+  IconPlaylistAdd,
   IconPlaylists,
   IconRemoveFromQueue,
 } from "../components/icons";
-import {
-  allPlaylistsExcludingRecent,
-  recentPlaylists,
-} from "../lib/playlists";
+import { recentPlaylists, sortedPlaylists } from "../lib/playlists";
 import { tracksForContextAction } from "../lib/trackSelection";
 import { usePlayerStore } from "../store/usePlayerStore";
 import { usePlaylistStore } from "../store/usePlaylistStore";
@@ -43,10 +41,7 @@ export function useTrackEditMenu(track: Track) {
   const submenuPanelRef = useRef<HTMLDivElement>(null);
 
   const recent = useMemo(() => recentPlaylists(playlists), [playlists]);
-  const allOthers = useMemo(
-    () => allPlaylistsExcludingRecent(playlists, recent),
-    [playlists, recent],
-  );
+  const allSorted = useMemo(() => sortedPlaylists(playlists), [playlists]);
 
   const libraryIdSet = useMemo(
     () => new Set(library.map((t) => t.id)),
@@ -86,7 +81,7 @@ export function useTrackEditMenu(track: Track) {
         contextTracks.length,
         playlists.length,
         recent.length,
-        allOthers.length,
+        allSorted.length,
       ],
       onBeforeOpen,
       dismissExcludeRefs: [submenuPanelRef],
@@ -157,9 +152,8 @@ export function useTrackEditMenu(track: Track) {
         icon={<IconPlaylists />}
         panelRef={submenuPanelRef}
       >
-        <ContextMenuHeading>New playlist</ContextMenuHeading>
         <ContextMenuItem
-          icon={null}
+          icon={<IconPlaylistAdd />}
           label="New Playlist…"
           onClick={handleNewPlaylist}
         />
@@ -177,19 +171,19 @@ export function useTrackEditMenu(track: Track) {
             ))}
           </>
         ) : null}
-        <ContextMenuSeparator />
-        <ContextMenuHeading>All playlists</ContextMenuHeading>
-        {allOthers.length > 0 ? (
-          allOthers.map((p) => (
-            <ContextMenuItem
-              key={p.id}
-              icon={null}
-              label={p.title}
-              onClick={() => handleAddToPlaylist(p.id)}
-            />
-          ))
-        ) : playlists.length === 0 ? (
-          <ContextMenuHeading>No playlists</ContextMenuHeading>
+        {allSorted.length > 0 ? (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuHeading>All playlists</ContextMenuHeading>
+            {allSorted.map((p) => (
+              <ContextMenuItem
+                key={p.id}
+                icon={null}
+                label={p.title}
+                onClick={() => handleAddToPlaylist(p.id)}
+              />
+            ))}
+          </>
         ) : null}
       </ContextMenuSubmenu>
       <ContextMenuSeparator />
