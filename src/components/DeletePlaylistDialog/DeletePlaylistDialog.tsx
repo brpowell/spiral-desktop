@@ -1,14 +1,5 @@
-import { useCallback, useRef } from "react";
-import { useFocusTrap } from "../../hooks/useFocusTrap";
 import type { Playlist } from "../../types/playlist";
-import { Button } from "../common/Button/Button";
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-} from "../common/Modal/Modal";
+import { AlertConfirmation } from "../common/AlertConfirmation/AlertConfirmation";
 
 interface DeletePlaylistDialogProps {
   open: boolean;
@@ -23,47 +14,19 @@ export function DeletePlaylistDialog({
   onClose,
   onConfirm,
 }: DeletePlaylistDialogProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const deletingRef = useRef(false);
-
-  useFocusTrap(dialogRef, open);
-
-  const handleDelete = useCallback(async () => {
-    if (deletingRef.current) return;
-    deletingRef.current = true;
-    try {
-      await onConfirm();
-      onClose();
-    } catch (err) {
-      console.error("deletePlaylist failed:", err);
-      deletingRef.current = false;
-    }
-  }, [onClose, onConfirm]);
-
   return (
-    <Modal
+    <AlertConfirmation
       open={open}
       onClose={onClose}
-      size="sm"
-      panelRef={dialogRef}
-      labelledBy="delete-playlist-title"
+      title="Delete playlist?"
+      titleId="delete-playlist-title"
+      confirmLabel="Delete playlist"
+      onConfirm={onConfirm}
     >
-      <ModalHeader>
-        <ModalTitle id="delete-playlist-title">Delete playlist?</ModalTitle>
-      </ModalHeader>
-
-      <ModalBody>
-        <p>
-          <strong>{playlist.title}</strong> will be removed. Tracks in this
-          playlist stay in your library.
-        </p>
-      </ModalBody>
-
-      <ModalFooter onCancel={onClose}>
-        <Button variant="danger" onClick={() => void handleDelete()}>
-          Delete playlist
-        </Button>
-      </ModalFooter>
-    </Modal>
+      <p>
+        <strong>{playlist.title}</strong> will be permanently deleted. Tracks in this
+        playlist will stay in your library.
+      </p>
+    </AlertConfirmation>
   );
 }
