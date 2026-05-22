@@ -3,10 +3,15 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { pickDatabaseFolder, pickFolder } from "../../lib/tauri";
 import { useLibrarySettingsStore } from "../../store/useLibrarySettingsStore";
 import type { ImportMode, LibrarySettings } from "../../types/library";
-import { IconClose } from "../icons";
-import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
 import { Button } from "../Button/Button";
-import { ModalFooter } from "../ModalFooter/ModalFooter";
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from "../Modal/Modal";
 import { TextInput } from "../TextInput/TextInput";
 import "./PreferencesModal.css";
 
@@ -38,15 +43,6 @@ export function PreferencesModal() {
     setRestartHint(false);
     setError(null);
   }, [open, settings]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, setOpen]);
 
   if (!draft) return null;
 
@@ -92,30 +88,19 @@ export function PreferencesModal() {
   };
 
   return (
-    <AnimatedModal
+    <Modal
       open={open}
-      backdropClassName="preferences-backdrop"
-      panelClassName="preferences"
+      onClose={() => setOpen(false)}
+      size="lg"
       panelRef={panelRef}
       labelledBy={titleId}
-      onBackdropClick={() => setOpen(false)}
     >
-      <header className="preferences__header">
-        <h2 id={titleId} className="preferences__title">
-          Preferences
-        </h2>
-        <Button
-          variant="ghost"
-          size="md"
-          iconOnly
-          className="preferences__close"
-          aria-label="Close"
-          onClick={() => setOpen(false)}
-        >
-          <IconClose />
-        </Button>
-      </header>
+      <ModalHeader>
+        <ModalTitle id={titleId}>Preferences</ModalTitle>
+        <ModalCloseButton onClick={() => setOpen(false)} />
+      </ModalHeader>
 
+      <ModalBody className="preferences__body">
       <section className="preferences__section" aria-labelledby="library-prefs-heading">
         <h3 id="library-prefs-heading" className="preferences__section-title">
           Library
@@ -255,9 +240,9 @@ export function PreferencesModal() {
           {error}
         </p>
       )}
+      </ModalBody>
 
       <ModalFooter
-        padded
         cancelLabel={restartHint ? "Close" : "Cancel"}
         onCancel={() => setOpen(false)}
         cancelDisabled={saving}
@@ -272,6 +257,6 @@ export function PreferencesModal() {
           </Button>
         )}
       </ModalFooter>
-    </AnimatedModal>
+    </Modal>
   );
 }

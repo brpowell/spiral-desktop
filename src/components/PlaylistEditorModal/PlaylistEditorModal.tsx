@@ -3,11 +3,15 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPlaylistById } from "../../lib/playlists";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlaylistStore } from "../../store/usePlaylistStore";
-import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
 import { Button } from "../Button/Button";
-import { ModalFooter } from "../ModalFooter/ModalFooter";
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from "../Modal/Modal";
 import { TextInput } from "../TextInput/TextInput";
-import "./PlaylistEditorModal.css";
 
 export function PlaylistEditorModal() {
   const editingPlaylistId = usePlaylistStore((s) => s.editingPlaylistId);
@@ -82,23 +86,22 @@ export function PlaylistEditorModal() {
   const titleId = "playlist-editor-title";
 
   return (
-    <AnimatedModal
+    <Modal
       open={isOpen}
-      backdropClassName="playlist-editor__backdrop"
-      panelClassName="playlist-editor__panel"
+      onClose={handleClose}
+      size="sm"
       panelRef={panelRef}
       labelledBy={titleId}
-      onBackdropClick={handleClose}
     >
-      <header className="playlist-editor__header">
-        <h2 id={titleId} className="playlist-editor__heading">
+      <ModalHeader>
+        <ModalTitle id={titleId}>
           {isNew ? "New Playlist" : "Edit Playlist"}
-        </h2>
-      </header>
+        </ModalTitle>
+      </ModalHeader>
 
-      <div className="playlist-editor__body">
-        <label className="playlist-editor__field">
-          <span className="playlist-editor__label">Title</span>
+      <ModalBody>
+        <label className="modal-field">
+          <span className="modal-label">Title</span>
           <TextInput
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -108,17 +111,17 @@ export function PlaylistEditorModal() {
             autoFocus
           />
         </label>
-        <label className="playlist-editor__field">
-          <span className="playlist-editor__label">Description</span>
+        <label className="modal-field">
+          <span className="modal-label">Description</span>
           <textarea
-            className="playlist-editor__textarea"
+            className="modal-textarea"
             value={description}
             rows={3}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional"
           />
         </label>
-      </div>
+      </ModalBody>
 
       <ModalFooter onCancel={handleClose} cancelDisabled={saving}>
         <Button
@@ -130,6 +133,6 @@ export function PlaylistEditorModal() {
           {saving ? "Saving…" : "Save"}
         </Button>
       </ModalFooter>
-    </AnimatedModal>
+    </Modal>
   );
 }

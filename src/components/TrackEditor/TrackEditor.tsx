@@ -22,9 +22,15 @@ import { usePlayerStore } from "../../store/usePlayerStore";
 import type { CoverArtCandidate } from "../../types/coverArt";
 import type { Track } from "../../types/track";
 import { AlbumArt } from "../AlbumArt/AlbumArt";
-import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
+import {
+  Modal,
+  ModalBody,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from "../Modal/Modal";
 import { Button } from "../Button/Button";
-import { ModalFooter } from "../ModalFooter/ModalFooter";
 import { TextInput } from "../TextInput/TextInput";
 import "./TrackEditor.css";
 
@@ -398,23 +404,26 @@ export function TrackEditor() {
     : "Unsaved edits to this track will be lost.";
 
   return (
-    <AnimatedModal
+    <Modal
       open={isOpen}
-      backdropClassName="track-editor-backdrop"
-      panelClassName="track-editor"
+      onClose={handleBackdropClick}
+      size="editor"
       panelRef={dialogRef}
       labelledBy="track-editor-title"
-      onBackdropClick={handleBackdropClick}
     >
       {isOpen && form && (
         <>
-          <h2 id="track-editor-title" className="track-editor__heading">
-            {isBulk ? `Edit ${tracks.length} tracks` : "Edit track info"}
-          </h2>
+          <ModalHeader>
+            <ModalTitle id="track-editor-title">
+              {isBulk ? `Edit ${tracks.length} tracks` : "Edit track info"}
+            </ModalTitle>
+          </ModalHeader>
+
+          <ModalBody>
           {isBulk ? (
-            <p className="track-editor__subtitle">
+            <ModalDescription>
               Updated changes will apply to all {tracks.length} tracks.
-            </p>
+            </ModalDescription>
           ) : null}
 
           <div className="track-editor__body">
@@ -621,6 +630,7 @@ export function TrackEditor() {
               </div>
             </div>
           )}
+          </ModalBody>
 
           <ModalFooter
             onCancel={handleCancel}
@@ -637,6 +647,6 @@ export function TrackEditor() {
           </ModalFooter>
         </>
       )}
-    </AnimatedModal>
+    </Modal>
   );
 }

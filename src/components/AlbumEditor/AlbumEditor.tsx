@@ -21,9 +21,15 @@ import { usePlayerStore } from "../../store/usePlayerStore";
 import type { CoverArtCandidate } from "../../types/coverArt";
 import type { Track } from "../../types/track";
 import { AlbumArt } from "../AlbumArt/AlbumArt";
-import { AnimatedModal } from "../AnimatedModal/AnimatedModal";
+import {
+  Modal,
+  ModalBody,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from "../Modal/Modal";
 import { Button } from "../Button/Button";
-import { ModalFooter } from "../ModalFooter/ModalFooter";
 import { TextInput } from "../TextInput/TextInput";
 import "../TrackEditor/TrackEditor.css";
 import "./AlbumEditor.css";
@@ -327,23 +333,24 @@ export function AlbumEditor() {
     : "Save";
 
   return (
-    <AnimatedModal
+    <Modal
       open={isOpen}
-      backdropClassName="track-editor-backdrop"
-      panelClassName="track-editor"
+      onClose={handleBackdropClick}
+      size="editor"
       panelRef={dialogRef}
       labelledBy="album-editor-title"
-      onBackdropClick={handleBackdropClick}
     >
       {isOpen && (
         <>
-          <h2 id="album-editor-title" className="track-editor__heading">
-            Edit album
-          </h2>
-          <p className="album-editor__subtitle">
+          <ModalHeader>
+            <ModalTitle id="album-editor-title">Edit album</ModalTitle>
+          </ModalHeader>
+
+          <ModalBody>
+          <ModalDescription>
             Changes apply to all {tracks.length}{" "}
             {tracks.length === 1 ? "track" : "tracks"} in this album.
-          </p>
+          </ModalDescription>
 
           <div className="track-editor__body">
             <div className="track-editor__art-col">
@@ -504,6 +511,7 @@ export function AlbumEditor() {
               </div>
             </div>
           )}
+          </ModalBody>
 
           <ModalFooter
             onCancel={handleCancel}
@@ -520,6 +528,6 @@ export function AlbumEditor() {
           </ModalFooter>
         </>
       )}
-    </AnimatedModal>
+    </Modal>
   );
 }
