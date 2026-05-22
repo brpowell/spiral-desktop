@@ -17,6 +17,7 @@ import {
   IconRemoveFromPlaylist,
   IconRemoveFromQueue,
 } from "../components/icons";
+import { showPlaylistAddedToast } from "../lib/playlistToast";
 import { recentPlaylists, sortedPlaylists } from "../lib/playlists";
 import { tracksForContextAction } from "../lib/trackSelection";
 import { usePlayerStore } from "../store/usePlayerStore";
@@ -105,11 +106,16 @@ export function useTrackEditMenu(
   }, [closeMenu, openTrackEditor, contextTrackIds]);
 
   const handleAddToPlaylist = useCallback(
-    (playlistId: number) => {
+    (targetPlaylistId: number) => {
+      const playlist = playlists.find((p) => p.id === targetPlaylistId);
       closeMenu();
-      void addTracksToPlaylist(playlistId, contextTrackIds);
+      void addTracksToPlaylist(targetPlaylistId, contextTrackIds).then(() => {
+        if (playlist) {
+          showPlaylistAddedToast(contextTrackIds, library, playlist);
+        }
+      });
     },
-    [closeMenu, addTracksToPlaylist, contextTrackIds],
+    [closeMenu, addTracksToPlaylist, contextTrackIds, library, playlists],
   );
 
   const handleNewPlaylist = useCallback(() => {

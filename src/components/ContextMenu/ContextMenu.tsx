@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  createContext,
+  useContext,
   useLayoutEffect,
   useRef,
   useState,
@@ -12,6 +14,8 @@ import { IconChevronRight } from "../icons";
 import { IconCheck } from "../icons";
 import { panelMotion } from "../../lib/motion";
 import "./ContextMenu.css";
+
+const ContextMenuOpenContext = createContext(true);
 
 export function ContextMenuItem({
   icon,
@@ -95,7 +99,9 @@ export function ContextMenuSubmenu({
   children,
   panelRef,
 }: ContextMenuSubmenuProps) {
+  const parentOpen = useContext(ContextMenuOpenContext);
   const [open, setOpen] = useState(false);
+  const flyoutOpen = open && parentOpen;
   const itemRef = useRef<HTMLButtonElement>(null);
   const internalPanelRef = useRef<HTMLDivElement>(null);
   const resolvedPanelRef = panelRef ?? internalPanelRef;
@@ -104,14 +110,14 @@ export function ContextMenuSubmenu({
   );
 
   useLayoutEffect(() => {
-    if (!open || !itemRef.current || !resolvedPanelRef.current) return;
+    if (!flyoutOpen || !itemRef.current || !resolvedPanelRef.current) return;
     const itemRect = itemRef.current.getBoundingClientRect();
     const { width, height } =
       resolvedPanelRef.current.getBoundingClientRect();
     setPosition(
       fitContextMenuPosition(itemRect.right - 2, itemRect.top, width, height),
     );
-  }, [open, children, resolvedPanelRef]);
+  }, [flyoutOpen, children, resolvedPanelRef]);
 
   return (
     <div
@@ -141,7 +147,7 @@ export function ContextMenuSubmenu({
       </button>
       {createPortal(
         <AnimatePresence>
-          {open ? (
+          {flyoutOpen ? (
             <motion.div
               ref={resolvedPanelRef}
               className="context-menu context-menu--flyout"
@@ -176,27 +182,29 @@ export function ContextMenu({
   children,
 }: ContextMenuProps) {
   return createPortal(
-    <AnimatePresence>
-      {open && anchor != null && (
-        <motion.div
-          ref={menuRef}
-          className="context-menu"
-          style={{
-            left: position?.left ?? anchor.x,
-            top: position?.top ?? anchor.y,
-            transformOrigin: "0 0",
-            pointerEvents: position == null ? "none" : undefined,
-          }}
-          role="menu"
-          initial={panelMotion.initial}
-          animate={position ? panelMotion.animate : panelMotion.initial}
-          exit={panelMotion.exit}
-          transition={panelMotion.transition}
-        >
-          {children}
-        </motion.div>
-      )}
-    </AnimatePresence>,
+    <ContextMenuOpenContext.Provider value={open}>
+      <AnimatePresence>
+        {open && anchor != null && (
+          <motion.div
+            ref={menuRef}
+            className="context-menu"
+            style={{
+              left: position?.left ?? anchor.x,
+              top: position?.top ?? anchor.y,
+              transformOrigin: "0 0",
+              pointerEvents: position == null ? "none" : undefined,
+            }}
+            role="menu"
+            initial={panelMotion.initial}
+            animate={position ? panelMotion.animate : panelMotion.initial}
+            exit={panelMotion.exit}
+            transition={panelMotion.transition}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </ContextMenuOpenContext.Provider>,
     document.body,
   );
 }
