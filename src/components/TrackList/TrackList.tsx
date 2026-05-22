@@ -296,38 +296,38 @@ export function TrackList({
                       className={[
                         "track-list__item",
                         draggingIndex === displayIndex &&
-                          "track-list__item--dragging",
+                        "track-list__item--dragging",
                         dragOverIndex === displayIndex &&
-                          draggingIndex != null &&
-                          draggingIndex !== displayIndex &&
-                          "track-list__item--drag-over",
+                        draggingIndex != null &&
+                        draggingIndex !== displayIndex &&
+                        "track-list__item--drag-over",
                       ]
                         .filter(Boolean)
                         .join(" ")}
                       onDragOver={
                         canReorder
                           ? (e) => {
-                              e.preventDefault();
-                              e.dataTransfer.dropEffect = "move";
-                              setDragOverIndex(displayIndex);
-                            }
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = "move";
+                            setDragOverIndex(displayIndex);
+                          }
                           : undefined
                       }
                       onDragLeave={
                         canReorder
                           ? () => {
-                              if (dragOverIndex === displayIndex) {
-                                setDragOverIndex(null);
-                              }
+                            if (dragOverIndex === displayIndex) {
+                              setDragOverIndex(null);
                             }
+                          }
                           : undefined
                       }
                       onDrop={
                         canReorder
                           ? (e) => {
-                              e.preventDefault();
-                              handleDrop(displayIndex);
-                            }
+                            e.preventDefault();
+                            handleDrop(displayIndex);
+                          }
                           : undefined
                       }
                     >
