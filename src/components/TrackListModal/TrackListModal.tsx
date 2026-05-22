@@ -4,7 +4,7 @@ import { buildPlaybackOrder } from "../../lib/activeTrackList";
 import { formatTime } from "../../lib/format";
 import { usePlayerStore } from "../../store/usePlayerStore";
 import type { Track } from "../../types/track";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
@@ -12,7 +12,7 @@ import {
   ModalHeader,
   ModalHeaderActions,
   ModalTitle,
-} from "../Modal/Modal";
+} from "../common/Modal/Modal";
 import { TrackItemTitle } from "../TrackItemTitle/TrackItemTitle";
 import { AlbumArt } from "../AlbumArt/AlbumArt";
 import "./TrackListModal.css";
@@ -190,9 +190,8 @@ function TrackListRow({
 
   return (
     <div
-      className={`track-list-modal__row${
-        playing ? " track-list-modal__row--playing" : ""
-      }${queued ? " track-list-modal__row--queued" : ""}`}
+      className={`track-list-modal__row${playing ? " track-list-modal__row--playing" : ""
+        }${queued ? " track-list-modal__row--queued" : ""}`}
     >
       <button type="button" className="track-list-modal__row-main" onClick={onPlay}>
         <AlbumArt

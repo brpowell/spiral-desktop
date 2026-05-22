@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, type ReactNode, type RefObject } from "react";
-import { backdropMotion, panelMotion } from "../../lib/motion";
+import { backdropMotion, panelMotion } from "../../../lib/motion";
 import { Button } from "../Button/Button";
-import { IconClose } from "../icons";
+import { IconClose } from "../../icons";
 import "./Modal.css";
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "editor";

@@ -29,9 +29,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-} from "../Modal/Modal";
-import { Button } from "../Button/Button";
-import { TextInput } from "../TextInput/TextInput";
+} from "../common/Modal/Modal";
+import { Button } from "../common/Button/Button";
+import { TextInput } from "../common/TextInput/TextInput";
 import "./TrackEditor.css";
 
 function CoverOptionMeta({ candidate }: { candidate: CoverArtCandidate }) {
@@ -420,216 +420,216 @@ export function TrackEditor() {
           </ModalHeader>
 
           <ModalBody>
-          {isBulk ? (
-            <ModalDescription>
-              Updated changes will apply to all {tracks.length} tracks.
-            </ModalDescription>
-          ) : null}
+            {isBulk ? (
+              <ModalDescription>
+                Updated changes will apply to all {tracks.length} tracks.
+              </ModalDescription>
+            ) : null}
 
-          <div className="track-editor__body">
-            <div className="track-editor__art-col">
-              <div
-                className={
-                  artDragOver
-                    ? "track-editor__art-drop track-editor__art-drop--active"
-                    : "track-editor__art-drop"
-                }
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setArtDragOver(true);
-                }}
-                onDragLeave={() => setArtDragOver(false)}
-                onDrop={handleArtDrop}
-              >
-                {previewSrc ? (
-                  <img
-                    src={previewSrc}
-                    alt=""
-                    className="track-editor__art-img"
-                  />
-                ) : (
-                  <AlbumArt
-                    artPath={null}
-                    className="track-editor__art-placeholder"
-                  />
+            <div className="track-editor__body">
+              <div className="track-editor__art-col">
+                <div
+                  className={
+                    artDragOver
+                      ? "track-editor__art-drop track-editor__art-drop--active"
+                      : "track-editor__art-drop"
+                  }
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setArtDragOver(true);
+                  }}
+                  onDragLeave={() => setArtDragOver(false)}
+                  onDrop={handleArtDrop}
+                >
+                  {previewSrc ? (
+                    <img
+                      src={previewSrc}
+                      alt=""
+                      className="track-editor__art-img"
+                    />
+                  ) : (
+                    <AlbumArt
+                      artPath={null}
+                      className="track-editor__art-placeholder"
+                    />
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  className="track-editor__art-btn"
+                  onClick={() => void handleChangeArt()}
+                >
+                  Change Art
+                </Button>
+                <Button
+                  size="sm"
+                  className="track-editor__art-btn"
+                  onClick={() => void handleFetchArt()}
+                  disabled={fetchingArt}
+                >
+                  {fetchingArt ? "Fetching…" : "Fetch Art"}
+                </Button>
+                {fetchMessage && !fetchingArt && (
+                  <p className="track-editor__fetch-msg">{fetchMessage}</p>
+                )}
+                {fetchingArt && (
+                  <div
+                    className="track-editor__fetching"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <span
+                      className="track-editor__fetching-spinner"
+                      aria-hidden
+                    />
+                    <span>Fetching artwork…</span>
+                  </div>
+                )}
+                {coverCandidates.length > 0 && (
+                  <div
+                    className="track-editor__cover-picker"
+                    aria-label="Cover art options"
+                  >
+                    {coverCandidates.map((candidate) => {
+                      const thumbSrc = candidate.thumbnailUrl ?? candidate.url;
+
+                      return (
+                        <button
+                          key={candidate.url}
+                          type="button"
+                          className={
+                            selectedCoverUrl === candidate.url
+                              ? "track-editor__cover-option track-editor__cover-option--selected"
+                              : "track-editor__cover-option"
+                          }
+                          onClick={() => handleSelectCover(candidate.url)}
+                          aria-pressed={selectedCoverUrl === candidate.url}
+                        >
+                          <span className="track-editor__cover-thumb">
+                            <img src={thumbSrc} alt="" loading="lazy" />
+                          </span>
+                          <CoverOptionMeta candidate={candidate} />
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
-              <Button
-                size="sm"
-                className="track-editor__art-btn"
-                onClick={() => void handleChangeArt()}
-              >
-                Change Art
-              </Button>
-              <Button
-                size="sm"
-                className="track-editor__art-btn"
-                onClick={() => void handleFetchArt()}
-                disabled={fetchingArt}
-              >
-                {fetchingArt ? "Fetching…" : "Fetch Art"}
-              </Button>
-              {fetchMessage && !fetchingArt && (
-                <p className="track-editor__fetch-msg">{fetchMessage}</p>
-              )}
-              {fetchingArt && (
-                <div
-                  className="track-editor__fetching"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <span
-                    className="track-editor__fetching-spinner"
-                    aria-hidden
-                  />
-                  <span>Fetching artwork…</span>
-                </div>
-              )}
-              {coverCandidates.length > 0 && (
-                <div
-                  className="track-editor__cover-picker"
-                  aria-label="Cover art options"
-                >
-                  {coverCandidates.map((candidate) => {
-                    const thumbSrc = candidate.thumbnailUrl ?? candidate.url;
 
-                    return (
-                      <button
-                        key={candidate.url}
-                        type="button"
-                        className={
-                          selectedCoverUrl === candidate.url
-                            ? "track-editor__cover-option track-editor__cover-option--selected"
-                            : "track-editor__cover-option"
-                        }
-                        onClick={() => handleSelectCover(candidate.url)}
-                        aria-pressed={selectedCoverUrl === candidate.url}
-                      >
-                        <span className="track-editor__cover-thumb">
-                          <img src={thumbSrc} alt="" loading="lazy" />
-                        </span>
-                        <CoverOptionMeta candidate={candidate} />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="track-editor__fields">
-              <TrackEditorField
-                label="Title"
-                field="title"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Artist"
-                field="artist"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Album"
-                field="album"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Album Artist"
-                field="albumArtist"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Year"
-                field="year"
-                type="number"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Track Number"
-                field="trackNumber"
-                type="number"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Disc Number"
-                field="discNumber"
-                type="number"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-              <TrackEditorField
-                label="Genre"
-                field="genre"
-                form={form}
-                tracks={tracks}
-                isBulk={isBulk}
-                onChange={setField}
-              />
-            </div>
-          </div>
-
-          {saveError && (
-            <p className="track-editor__error" role="alert">
-              {saveError}
-            </p>
-          )}
-
-          {discardPrompt && (
-            <div
-              className="track-editor__discard"
-              role="alertdialog"
-              aria-labelledby="track-editor-discard-title"
-              aria-describedby="track-editor-discard-desc"
-            >
-              <p
-                id="track-editor-discard-title"
-                className="track-editor__discard-title"
-              >
-                Discard changes?
-              </p>
-              <p
-                id="track-editor-discard-desc"
-                className="track-editor__discard-desc"
-              >
-                {discardDescription}
-              </p>
-              <div className="track-editor__discard-actions">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setDiscardPrompt(false)}
-                >
-                  Keep editing
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={confirmDiscard}
-                >
-                  Discard
-                </Button>
+              <div className="track-editor__fields">
+                <TrackEditorField
+                  label="Title"
+                  field="title"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Artist"
+                  field="artist"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Album"
+                  field="album"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Album Artist"
+                  field="albumArtist"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Year"
+                  field="year"
+                  type="number"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Track Number"
+                  field="trackNumber"
+                  type="number"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Disc Number"
+                  field="discNumber"
+                  type="number"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
+                <TrackEditorField
+                  label="Genre"
+                  field="genre"
+                  form={form}
+                  tracks={tracks}
+                  isBulk={isBulk}
+                  onChange={setField}
+                />
               </div>
             </div>
-          )}
+
+            {saveError && (
+              <p className="track-editor__error" role="alert">
+                {saveError}
+              </p>
+            )}
+
+            {discardPrompt && (
+              <div
+                className="track-editor__discard"
+                role="alertdialog"
+                aria-labelledby="track-editor-discard-title"
+                aria-describedby="track-editor-discard-desc"
+              >
+                <p
+                  id="track-editor-discard-title"
+                  className="track-editor__discard-title"
+                >
+                  Discard changes?
+                </p>
+                <p
+                  id="track-editor-discard-desc"
+                  className="track-editor__discard-desc"
+                >
+                  {discardDescription}
+                </p>
+                <div className="track-editor__discard-actions">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDiscardPrompt(false)}
+                  >
+                    Keep editing
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={confirmDiscard}
+                  >
+                    Discard
+                  </Button>
+                </div>
+              </div>
+            )}
           </ModalBody>
 
           <ModalFooter

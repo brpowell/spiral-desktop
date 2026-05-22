@@ -1,14 +1,14 @@
 import { useCallback, useRef } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import type { Track } from "../../types/track";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   ModalTitle,
-} from "../Modal/Modal";
+} from "../common/Modal/Modal";
 import "./RemoveTrackDialog.css";
 
 interface RemoveTrackDialogProps {

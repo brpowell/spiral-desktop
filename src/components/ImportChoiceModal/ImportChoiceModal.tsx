@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useLibrarySettingsStore } from "../../store/useLibrarySettingsStore";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
@@ -10,7 +10,7 @@ import {
   ModalHeader,
   ModalHeaderMain,
   ModalTitle,
-} from "../Modal/Modal";
+} from "../common/Modal/Modal";
 
 export function ImportChoiceModal() {
   const importPrompt = useLibrarySettingsStore((s) => s.importPrompt);

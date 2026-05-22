@@ -3,15 +3,15 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPlaylistById } from "../../lib/playlists";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlaylistStore } from "../../store/usePlaylistStore";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   ModalTitle,
-} from "../Modal/Modal";
-import { TextInput } from "../TextInput/TextInput";
+} from "../common/Modal/Modal";
+import { TextInput } from "../common/TextInput/TextInput";
 
 export function PlaylistEditorModal() {
   const editingPlaylistId = usePlaylistStore((s) => s.editingPlaylistId);

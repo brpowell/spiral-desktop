@@ -1,14 +1,14 @@
 import { useCallback, useRef } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import type { Playlist } from "../../types/playlist";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   ModalTitle,
-} from "../Modal/Modal";
+} from "../common/Modal/Modal";
 
 interface DeletePlaylistDialogProps {
   open: boolean;

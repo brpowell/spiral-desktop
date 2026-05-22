@@ -4,7 +4,7 @@ import { resolveThemeTokens } from "../../lib/theme";
 import { useThemeStore } from "../../store/useThemeStore";
 import { THEME_SCHEMA_EXAMPLE, type Theme } from "../../types/theme";
 import { IconCheck, IconHelp } from "../icons";
-import { Button } from "../Button/Button";
+import { Button } from "../common/Button/Button";
 import {
   Modal,
   ModalBody,
@@ -14,7 +14,7 @@ import {
   ModalHeader,
   ModalHeaderActions,
   ModalTitle,
-} from "../Modal/Modal";
+} from "../common/Modal/Modal";
 import "./ThemePicker.css";
 
 function ThemeSwatch({

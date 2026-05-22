@@ -6,7 +6,7 @@ import { AlbumEditor } from "./components/AlbumEditor/AlbumEditor";
 import { TrackEditor } from "./components/TrackEditor/TrackEditor";
 import { MainContent } from "./components/layout/MainContent";
 import { Sidebar } from "./components/layout/Sidebar";
-import { Button } from "./components/Button/Button";
+import { Button } from "./components/common/Button/Button";
 import { ImportChoiceModal } from "./components/ImportChoiceModal/ImportChoiceModal";
 import { PlaylistEditorModal } from "./components/PlaylistEditorModal/PlaylistEditorModal";
 import { PreferencesModal } from "./components/PreferencesModal/PreferencesModal";
