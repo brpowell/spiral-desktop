@@ -367,6 +367,36 @@ pub fn remove_tracks_from_playlist(
     Ok(())
 }
 
+pub fn reorder_playlist_tracks(
+    conn: &Connection,
+    playlist_id: i64,
+    track_ids: &[i64],
+) -> Result<(), rusqlite::Error> {
+    let current = playlist_track_ids(conn, playlist_id)?;
+    if current.len() != track_ids.len() {
+        return Err(rusqlite::Error::InvalidParameterName(
+            "track_ids length mismatch".into(),
+        ));
+    }
+    let current_set: std::collections::HashSet<i64> = current.into_iter().collect();
+    if !track_ids.iter().all(|id| current_set.contains(id)) {
+        return Err(rusqlite::Error::InvalidParameterName(
+            "track_ids contain unknown tracks".into(),
+        ));
+    }
+
+    for (position, track_id) in track_ids.iter().enumerate() {
+        conn.execute(
+            "UPDATE playlist_tracks SET position = ?1
+             WHERE playlist_id = ?2 AND track_id = ?3",
+            params![position as i64, playlist_id, track_id],
+        )?;
+    }
+
+    touch_playlist(conn, playlist_id)?;
+    Ok(())
+}
+
 pub fn list_file_paths(conn: &Connection) -> Result<Vec<String>, rusqlite::Error> {
     let mut stmt = conn.prepare("SELECT file_path FROM tracks")?;
     let paths = stmt
@@ -421,6 +451,21 @@ mod tests {
         let second = get_track_by_id(&conn, 1).unwrap().unwrap();
         assert_eq!(second.title, "Renamed");
         assert_eq!(second.date_added, first_added);
+    }
+
+    #[test]
+    fn reorder_playlist_tracks_updates_order() {
+        let conn = test_conn();
+        save_track(&conn, &sample_input("/music/a.mp3")).unwrap();
+        save_track(&conn, &sample_input("/music/b.mp3")).unwrap();
+        save_track(&conn, &sample_input("/music/c.mp3")).unwrap();
+
+        let playlist_id = create_playlist(&conn, "Mix", None).unwrap();
+        add_tracks_to_playlist(&conn, playlist_id, &[1, 2, 3]).unwrap();
+        assert_eq!(playlist_track_ids(&conn, playlist_id).unwrap(), vec![1, 2, 3]);
+
+        reorder_playlist_tracks(&conn, playlist_id, &[3, 1, 2]).unwrap();
+        assert_eq!(playlist_track_ids(&conn, playlist_id).unwrap(), vec![3, 1, 2]);
     }
 
     #[test]

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   addTracksToPlaylist as addTracksToPlaylistApi,
   removeTracksFromPlaylist as removeTracksFromPlaylistApi,
+  reorderPlaylistTracks as reorderPlaylistTracksApi,
   createPlaylist as createPlaylistApi,
   deletePlaylist as deletePlaylistApi,
   getPlaylists,
@@ -28,6 +29,10 @@ interface PlaylistState {
   ) => Promise<void>;
   addTracksToPlaylist: (playlistId: number, trackIds: number[]) => Promise<void>;
   removeTracksFromPlaylist: (
+    playlistId: number,
+    trackIds: number[],
+  ) => Promise<void>;
+  reorderPlaylistTracks: (
     playlistId: number,
     trackIds: number[],
   ) => Promise<void>;
@@ -82,6 +87,16 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
 
   removeTracksFromPlaylist: async (playlistId, trackIds) => {
     await removeTracksFromPlaylistApi(playlistId, trackIds);
+    await get().loadPlaylists();
+  },
+
+  reorderPlaylistTracks: async (playlistId, trackIds) => {
+    set((state) => ({
+      playlists: state.playlists.map((p) =>
+        p.id === playlistId ? { ...p, trackIds } : p,
+      ),
+    }));
+    await reorderPlaylistTracksApi(playlistId, trackIds);
     await get().loadPlaylists();
   },
 

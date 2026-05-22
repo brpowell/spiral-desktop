@@ -146,6 +146,13 @@ export async function removeTracksFromPlaylist(
   return invoke<void>("remove_tracks_from_playlist", { playlistId, trackIds });
 }
 
+export async function reorderPlaylistTracks(
+  playlistId: number,
+  trackIds: number[],
+): Promise<void> {
+  return invoke<void>("reorder_playlist_tracks", { playlistId, trackIds });
+}
+
 export async function deletePlaylist(id: number): Promise<void> {
   return invoke<void>("delete_playlist", { id });
 }

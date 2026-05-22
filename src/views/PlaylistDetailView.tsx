@@ -71,6 +71,7 @@ function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
   const selectedTrackIds = usePlayerStore((s) => s.selectedTrackIds);
   const selectTracksInList = usePlayerStore((s) => s.selectTracksInList);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const reorderPlaylistTracks = usePlaylistStore((s) => s.reorderPlaylistTracks);
   const { requestDelete, deleteDialog } = useDeletePlaylistDialog(playlist);
 
   const tracks = useMemo(
@@ -101,6 +102,13 @@ function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
 
   const handlePlayTrack = (track: Track) => {
     void playTracks(trackIds, track.id);
+  };
+
+  const handleReorderTracks = (fromIndex: number, toIndex: number) => {
+    const ids = [...playlist.trackIds];
+    const [moved] = ids.splice(fromIndex, 1);
+    ids.splice(toIndex, 0, moved);
+    void reorderPlaylistTracks(playlist.id, ids);
   };
 
   return (
@@ -204,6 +212,8 @@ function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
           playbackState={playbackState}
           onSelectTrack={handleSelectTrack}
           onPlayTrack={handlePlayTrack}
+          reorderable
+          onReorderTracks={handleReorderTracks}
           bordered={false}
           className="playlist-detail__tracks"
         />

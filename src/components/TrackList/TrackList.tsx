@@ -1,4 +1,6 @@
-import { useCallback, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
+import { TRACK_REORDER_DRAG_TYPE } from "../../lib/dragDrop";
+import { IconGrip } from "../icons";
 import { formatDateAdded, formatTime } from "../../lib/format";
 import { Button } from "../common/Button/Button";
 import { TrackItemTitle } from "../TrackItemTitle/TrackItemTitle";
@@ -82,6 +84,8 @@ interface TrackListProps {
   bordered?: boolean;
   showAlbumArt?: boolean;
   playlistId?: number;
+  reorderable?: boolean;
+  onReorderTracks?: (fromIndex: number, toIndex: number) => void;
 }
 
 interface ResizeHandleProps {
@@ -145,7 +149,13 @@ export function TrackList({
   bordered = true,
   showAlbumArt = false,
   playlistId,
+  reorderable = false,
+  onReorderTracks,
 }: TrackListProps) {
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const canReorder = reorderable && !!onReorderTracks;
   const {
     preset,
     visibleColumns,
@@ -228,12 +238,27 @@ export function TrackList({
     );
   };
 
+  const handleDragEnd = () => {
+    setDraggingIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (toIndex: number) => {
+    if (draggingIndex == null || draggingIndex === toIndex || !onReorderTracks) {
+      handleDragEnd();
+      return;
+    }
+    onReorderTracks(draggingIndex, toIndex);
+    handleDragEnd();
+  };
+
   return (
     <>
       <div
         className={[
           "track-list",
           bordered && "track-list--bordered",
+          canReorder && "track-list--reorderable",
           className,
         ]
           .filter(Boolean)
@@ -266,7 +291,46 @@ export function TrackList({
                     isNowPlaying && playbackState === "playing";
 
                   return (
-                    <li key={track.id} className="track-list__item">
+                    <li
+                      key={track.id}
+                      className={[
+                        "track-list__item",
+                        draggingIndex === displayIndex &&
+                          "track-list__item--dragging",
+                        dragOverIndex === displayIndex &&
+                          draggingIndex != null &&
+                          draggingIndex !== displayIndex &&
+                          "track-list__item--drag-over",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onDragOver={
+                        canReorder
+                          ? (e) => {
+                              e.preventDefault();
+                              e.dataTransfer.dropEffect = "move";
+                              setDragOverIndex(displayIndex);
+                            }
+                          : undefined
+                      }
+                      onDragLeave={
+                        canReorder
+                          ? () => {
+                              if (dragOverIndex === displayIndex) {
+                                setDragOverIndex(null);
+                              }
+                            }
+                          : undefined
+                      }
+                      onDrop={
+                        canReorder
+                          ? (e) => {
+                              e.preventDefault();
+                              handleDrop(displayIndex);
+                            }
+                          : undefined
+                      }
+                    >
                       <TrackRowMenu
                         track={track}
                         className="track-list__row-wrap"
@@ -298,17 +362,40 @@ export function TrackList({
                                   className={[
                                     "track-list__cell",
                                     "track-list__cell--index",
+                                    canReorder && "track-list__cell--index-reorder",
                                     col.align === "center" &&
                                     "track-list__cell--center",
                                   ]
                                     .filter(Boolean)
                                     .join(" ")}
                                 >
-                                  {indexDisplay(
-                                    track,
-                                    displayIndex,
-                                    preset.indexColumn,
-                                  )}
+                                  {canReorder ? (
+                                    <span
+                                      className="track-list__drag-handle"
+                                      draggable
+                                      aria-label={`Reorder ${track.title}`}
+                                      onDragStart={(e) => {
+                                        e.dataTransfer.effectAllowed = "move";
+                                        e.dataTransfer.setData(
+                                          TRACK_REORDER_DRAG_TYPE,
+                                          String(displayIndex),
+                                        );
+                                        setDraggingIndex(displayIndex);
+                                      }}
+                                      onDragEnd={handleDragEnd}
+                                      onClick={(e) => e.stopPropagation()}
+                                      onPointerDown={(e) => e.stopPropagation()}
+                                    >
+                                      <IconGrip className="track-list__drag-icon" />
+                                    </span>
+                                  ) : null}
+                                  <span className="track-list__index-num">
+                                    {indexDisplay(
+                                      track,
+                                      displayIndex,
+                                      preset.indexColumn,
+                                    )}
+                                  </span>
                                 </span>
                               );
                             }
