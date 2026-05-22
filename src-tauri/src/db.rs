@@ -342,6 +342,26 @@ pub fn add_tracks_to_playlist(
     Ok(())
 }
 
+pub fn remove_tracks_from_playlist(
+    conn: &Connection,
+    playlist_id: i64,
+    track_ids: &[i64],
+) -> Result<(), rusqlite::Error> {
+    if track_ids.is_empty() {
+        return Ok(());
+    }
+
+    for track_id in track_ids {
+        conn.execute(
+            "DELETE FROM playlist_tracks WHERE playlist_id = ?1 AND track_id = ?2",
+            params![playlist_id, track_id],
+        )?;
+    }
+
+    touch_playlist(conn, playlist_id)?;
+    Ok(())
+}
+
 pub fn list_file_paths(conn: &Connection) -> Result<Vec<String>, rusqlite::Error> {
     let mut stmt = conn.prepare("SELECT file_path FROM tracks")?;
     let paths = stmt

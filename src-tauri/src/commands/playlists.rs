@@ -61,3 +61,16 @@ pub fn add_tracks_to_playlist(
         e.to_string()
     })
 }
+
+#[tauri::command]
+pub fn remove_tracks_from_playlist(
+    state: State<DbState>,
+    playlist_id: i64,
+    track_ids: Vec<i64>,
+) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db::remove_tracks_from_playlist(&conn, playlist_id, &track_ids).map_err(|e| {
+        eprintln!("remove_tracks_from_playlist error: {e}");
+        e.to_string()
+    })
+}

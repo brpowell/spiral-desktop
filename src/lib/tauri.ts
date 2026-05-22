@@ -139,6 +139,13 @@ export async function addTracksToPlaylist(
   return invoke<void>("add_tracks_to_playlist", { playlistId, trackIds });
 }
 
+export async function removeTracksFromPlaylist(
+  playlistId: number,
+  trackIds: number[],
+): Promise<void> {
+  return invoke<void>("remove_tracks_from_playlist", { playlistId, trackIds });
+}
+
 export async function pickImageFile(): Promise<string | null> {
   return invoke<string | null>("pick_image_file");
 }

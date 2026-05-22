@@ -81,6 +81,7 @@ interface TrackListProps {
   className?: string;
   bordered?: boolean;
   showAlbumArt?: boolean;
+  playlistId?: number;
 }
 
 interface ResizeHandleProps {
@@ -143,6 +144,7 @@ export function TrackList({
   className = "",
   bordered = true,
   showAlbumArt = false,
+  playlistId,
 }: TrackListProps) {
   const {
     preset,
@@ -265,7 +267,11 @@ export function TrackList({
 
             return (
               <li key={track.id} className="track-list__item">
-                <TrackRowMenu track={track} className="track-list__row-wrap">
+                <TrackRowMenu
+                  track={track}
+                  className="track-list__row-wrap"
+                  playlistId={playlistId}
+                >
                   <div
                     role="button"
                     tabIndex={0}

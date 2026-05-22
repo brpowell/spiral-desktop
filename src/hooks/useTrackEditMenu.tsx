@@ -14,6 +14,7 @@ import {
   IconEditInfo,
   IconPlaylistAdd,
   IconPlaylists,
+  IconRemoveFromPlaylist,
   IconRemoveFromQueue,
 } from "../components/icons";
 import { recentPlaylists, sortedPlaylists } from "../lib/playlists";
@@ -23,7 +24,14 @@ import { usePlaylistStore } from "../store/usePlaylistStore";
 import type { Track } from "../types/track";
 import { useContextMenu } from "./useContextMenu";
 
-export function useTrackEditMenu(track: Track) {
+interface UseTrackEditMenuOptions {
+  playlistId?: number;
+}
+
+export function useTrackEditMenu(
+  track: Track,
+  { playlistId }: UseTrackEditMenuOptions = {},
+) {
   const library = usePlayerStore((s) => s.library);
   const selectedTrackIds = usePlayerStore((s) => s.selectedTrackIds);
   const manualQueueIds = usePlayerStore((s) => s.manualQueueIds);
@@ -35,6 +43,9 @@ export function useTrackEditMenu(track: Track) {
 
   const playlists = usePlaylistStore((s) => s.playlists);
   const addTracksToPlaylist = usePlaylistStore((s) => s.addTracksToPlaylist);
+  const removeTracksFromPlaylist = usePlaylistStore(
+    (s) => s.removeTracksFromPlaylist,
+  );
   const openPlaylistEditor = usePlaylistStore((s) => s.openPlaylistEditor);
 
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -79,6 +90,7 @@ export function useTrackEditMenu(track: Track) {
         anyInQueue,
         bulkRemove,
         contextTracks.length,
+        playlistId,
         playlists.length,
         recent.length,
         allSorted.length,
@@ -119,6 +131,7 @@ export function useTrackEditMenu(track: Track) {
         }
         onClick={openEditor}
       />
+      <ContextMenuSeparator />
       <ContextMenuItem
         icon={<IconAddToQueue />}
         label={
@@ -147,6 +160,7 @@ export function useTrackEditMenu(track: Track) {
           }}
         />
       ) : null}
+      <ContextMenuSeparator />
       <ContextMenuSubmenu
         label="Add to Playlist"
         icon={<IconPlaylists />}
@@ -186,6 +200,20 @@ export function useTrackEditMenu(track: Track) {
           </>
         ) : null}
       </ContextMenuSubmenu>
+      {playlistId != null ? (
+        <ContextMenuItem
+          icon={<IconRemoveFromPlaylist />}
+          label={
+            bulkRemove
+              ? `Remove ${contextTracks.length} from Playlist`
+              : "Remove from Playlist"
+          }
+          onClick={() => {
+            closeMenu();
+            void removeTracksFromPlaylist(playlistId, contextTrackIds);
+          }}
+        />
+      ) : null}
       <ContextMenuSeparator />
       <ContextMenuItem
         icon={<IconDelete />}

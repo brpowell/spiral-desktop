@@ -176,6 +176,18 @@ export function IconPlaylistAdd(props: IconProps) {
   );
 }
 
+export function IconRemoveFromPlaylist(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
+      <path d="M16 5H3" />
+      <path d="M11 12H3" />
+      <path d="M16 19H3" />
+      <path d="m15.5 9.5 5 5" />
+      <path d="m20.5 9.5-5 5" />
+    </svg>
+  );
+}
+
 export function IconEditInfo(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   addTracksToPlaylist as addTracksToPlaylistApi,
+  removeTracksFromPlaylist as removeTracksFromPlaylistApi,
   createPlaylist as createPlaylistApi,
   getPlaylists,
   touchPlaylist as touchPlaylistApi,
@@ -25,6 +26,10 @@ interface PlaylistState {
     description: string | null,
   ) => Promise<void>;
   addTracksToPlaylist: (playlistId: number, trackIds: number[]) => Promise<void>;
+  removeTracksFromPlaylist: (
+    playlistId: number,
+    trackIds: number[],
+  ) => Promise<void>;
   touchPlaylist: (id: number) => Promise<void>;
 }
 
@@ -70,6 +75,11 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
 
   addTracksToPlaylist: async (playlistId, trackIds) => {
     await addTracksToPlaylistApi(playlistId, trackIds);
+    await get().loadPlaylists();
+  },
+
+  removeTracksFromPlaylist: async (playlistId, trackIds) => {
+    await removeTracksFromPlaylistApi(playlistId, trackIds);
     await get().loadPlaylists();
   },
 

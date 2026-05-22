@@ -167,6 +167,7 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
       ) : (
         <TrackList
           presetId="playlist"
+          playlistId={playlistId}
           showAlbumArt
           tracks={tracks}
           selectedTrackIds={selectedTrackIds}

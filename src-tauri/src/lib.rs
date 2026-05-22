@@ -56,6 +56,7 @@ pub fn run() {
             commands::playlists::update_playlist,
             commands::playlists::touch_playlist,
             commands::playlists::add_tracks_to_playlist,
+            commands::playlists::remove_tracks_from_playlist,
             commands::library::record_track_play,
             commands::library::remove_track,
             commands::metadata::pick_image_file,
