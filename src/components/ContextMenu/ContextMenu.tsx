@@ -18,17 +18,20 @@ export function ContextMenuItem({
   label,
   onClick,
   className,
+  disabled,
 }: {
   icon: ReactNode;
   label: string;
   onClick: () => void;
   className?: string;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       role="menuitem"
       className={className}
+      disabled={disabled}
       onClick={onClick}
     >
       <span className="context-menu__item-icon" aria-hidden>

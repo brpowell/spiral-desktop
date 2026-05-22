@@ -53,9 +53,14 @@
   background: var(--color-border);
 }
 
-.context-menu button:hover {
+.context-menu button:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   color: var(--color-accent);
+}
+
+.context-menu button:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .context-menu .context-menu__danger {

@@ -18,29 +18,6 @@
   height: 1.1rem;
 }
 
-.playlist-detail__toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.playlist-detail__edit,
-.playlist-detail__queue-all,
-.playlist-detail__play-all {
-  gap: 0.35rem;
-}
-
-.playlist-detail__play-all {
-  gap: 0.4rem;
-}
-
-.playlist-detail__edit svg,
-.playlist-detail__queue-all svg,
-.playlist-detail__play-all svg {
-  width: 1rem;
-  height: 1rem;
-}
-
 .playlist-detail__hero {
   display: flex;
   gap: 2rem;
