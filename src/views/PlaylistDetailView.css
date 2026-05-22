@@ -31,15 +31,6 @@
     align-items: center;
     text-align: center;
   }
-
-  .playlist-detail__art {
-    width: min(220px, 70vw);
-  }
-}
-
-.playlist-detail__art {
-  width: 220px;
-  flex-shrink: 0;
 }
 
 .playlist-detail__meta {

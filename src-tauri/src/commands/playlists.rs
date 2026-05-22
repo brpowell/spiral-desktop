@@ -1,5 +1,5 @@
 use crate::db;
-use crate::models::Playlist;
+use crate::models::{Playlist, PlaylistImageMode};
 use tauri::State;
 
 use super::library::DbState;
@@ -18,9 +18,18 @@ pub fn create_playlist(
     state: State<DbState>,
     title: String,
     description: Option<String>,
+    image_mode: PlaylistImageMode,
+    custom_image_path: Option<String>,
 ) -> Result<i64, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
-    db::create_playlist(&conn, &title, description.as_deref()).map_err(|e| {
+    db::create_playlist(
+        &conn,
+        &title,
+        description.as_deref(),
+        image_mode,
+        custom_image_path.as_deref(),
+    )
+    .map_err(|e| {
         eprintln!("create_playlist error: {e}");
         e.to_string()
     })
@@ -32,9 +41,19 @@ pub fn update_playlist(
     id: i64,
     title: String,
     description: Option<String>,
+    image_mode: PlaylistImageMode,
+    custom_image_path: Option<String>,
 ) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
-    db::update_playlist(&conn, id, &title, description.as_deref()).map_err(|e| {
+    db::update_playlist(
+        &conn,
+        id,
+        &title,
+        description.as_deref(),
+        image_mode,
+        custom_image_path.as_deref(),
+    )
+    .map_err(|e| {
         eprintln!("update_playlist error: {e}");
         e.to_string()
     })

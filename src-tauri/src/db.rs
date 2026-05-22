@@ -1,4 +1,4 @@
-use crate::models::{Playlist, Track, TrackInput, TrackMetadataUpdate};
+use crate::models::{Playlist, PlaylistImageMode, Track, TrackInput, TrackMetadataUpdate};
 use chrono::Utc;
 use rusqlite::{params, Connection, Row};
 use std::path::Path;
@@ -59,18 +59,33 @@ fn map_track_row(row: &Row<'_>) -> rusqlite::Result<Track> {
     })
 }
 
-fn table_columns(conn: &Connection) -> Result<Vec<String>, rusqlite::Error> {
-    let mut stmt = conn.prepare("PRAGMA table_info(tracks)")?;
+fn table_columns(conn: &Connection, table: &str) -> Result<Vec<String>, rusqlite::Error> {
+    let sql = format!("PRAGMA table_info({table})");
+    let mut stmt = conn.prepare(&sql)?;
     let columns = stmt
         .query_map([], |row| row.get::<_, String>(1))?
         .collect::<Result<Vec<_>, _>>()?;
     Ok(columns)
 }
 
-fn migrate(conn: &Connection) -> Result<(), rusqlite::Error> {
-    let columns = table_columns(conn)?;
+fn parse_playlist_image_mode(value: &str) -> PlaylistImageMode {
+    match value {
+        "custom" => PlaylistImageMode::Custom,
+        _ => PlaylistImageMode::Generated,
+    }
+}
 
-    if !columns.iter().any(|c| c == "date_added") {
+fn playlist_image_mode_str(mode: PlaylistImageMode) -> &'static str {
+    match mode {
+        PlaylistImageMode::Generated => "generated",
+        PlaylistImageMode::Custom => "custom",
+    }
+}
+
+fn migrate(conn: &Connection) -> Result<(), rusqlite::Error> {
+    let track_columns = table_columns(conn, "tracks")?;
+
+    if !track_columns.iter().any(|c| c == "date_added") {
         conn.execute(
             "ALTER TABLE tracks ADD COLUMN date_added TEXT NOT NULL DEFAULT ''",
             [],
@@ -82,9 +97,23 @@ fn migrate(conn: &Connection) -> Result<(), rusqlite::Error> {
         )?;
     }
 
-    if !columns.iter().any(|c| c == "play_count") {
+    if !track_columns.iter().any(|c| c == "play_count") {
         conn.execute(
             "ALTER TABLE tracks ADD COLUMN play_count INTEGER NOT NULL DEFAULT 0",
+            [],
+        )?;
+    }
+
+    let playlist_columns = table_columns(conn, "playlists")?;
+    if !playlist_columns.iter().any(|c| c == "image_mode") {
+        conn.execute(
+            "ALTER TABLE playlists ADD COLUMN image_mode TEXT NOT NULL DEFAULT 'generated'",
+            [],
+        )?;
+    }
+    if !playlist_columns.iter().any(|c| c == "custom_image_path") {
+        conn.execute(
+            "ALTER TABLE playlists ADD COLUMN custom_image_path TEXT",
             [],
         )?;
     }
@@ -234,7 +263,7 @@ fn playlist_track_ids(conn: &Connection, playlist_id: i64) -> Result<Vec<i64>, r
 
 pub fn get_all_playlists(conn: &Connection) -> Result<Vec<Playlist>, rusqlite::Error> {
     let mut stmt = conn.prepare(
-        "SELECT id, title, description, date_created, last_used_at
+        "SELECT id, title, description, date_created, last_used_at, image_mode, custom_image_path
          FROM playlists
          ORDER BY title COLLATE NOCASE",
     )?;
@@ -245,12 +274,22 @@ pub fn get_all_playlists(conn: &Connection) -> Result<Vec<Playlist>, rusqlite::E
             row.get::<_, Option<String>>(2)?,
             row.get::<_, String>(3)?,
             row.get::<_, String>(4)?,
+            row.get::<_, String>(5)?,
+            row.get::<_, Option<String>>(6)?,
         ))
     })?;
 
     let mut playlists = Vec::new();
     for row in rows {
-        let (id, title, description, date_created, last_used_at) = row?;
+        let (
+            id,
+            title,
+            description,
+            date_created,
+            last_used_at,
+            image_mode,
+            custom_image_path,
+        ) = row?;
         let track_ids = playlist_track_ids(conn, id)?;
         playlists.push(Playlist {
             id,
@@ -259,6 +298,8 @@ pub fn get_all_playlists(conn: &Connection) -> Result<Vec<Playlist>, rusqlite::E
             date_created,
             last_used_at,
             track_ids,
+            image_mode: parse_playlist_image_mode(&image_mode),
+            custom_image_path,
         });
     }
     Ok(playlists)
@@ -268,12 +309,21 @@ pub fn create_playlist(
     conn: &Connection,
     title: &str,
     description: Option<&str>,
+    image_mode: PlaylistImageMode,
+    custom_image_path: Option<&str>,
 ) -> Result<i64, rusqlite::Error> {
     let now = Utc::now().to_rfc3339();
     conn.execute(
-        "INSERT INTO playlists (title, description, date_created, last_used_at)
-         VALUES (?1, ?2, ?3, ?4)",
-        params![title, description, now, now],
+        "INSERT INTO playlists (title, description, date_created, last_used_at, image_mode, custom_image_path)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        params![
+            title,
+            description,
+            now,
+            now,
+            playlist_image_mode_str(image_mode),
+            custom_image_path,
+        ],
     )?;
     Ok(conn.last_insert_rowid())
 }
@@ -283,10 +333,19 @@ pub fn update_playlist(
     id: i64,
     title: &str,
     description: Option<&str>,
+    image_mode: PlaylistImageMode,
+    custom_image_path: Option<&str>,
 ) -> Result<(), rusqlite::Error> {
     conn.execute(
-        "UPDATE playlists SET title = ?1, description = ?2 WHERE id = ?3",
-        params![title, description, id],
+        "UPDATE playlists SET title = ?1, description = ?2, image_mode = ?3, custom_image_path = ?4
+         WHERE id = ?5",
+        params![
+            title,
+            description,
+            playlist_image_mode_str(image_mode),
+            custom_image_path,
+            id,
+        ],
     )?;
     Ok(())
 }
@@ -460,7 +519,8 @@ mod tests {
         save_track(&conn, &sample_input("/music/b.mp3")).unwrap();
         save_track(&conn, &sample_input("/music/c.mp3")).unwrap();
 
-        let playlist_id = create_playlist(&conn, "Mix", None).unwrap();
+        let playlist_id =
+            create_playlist(&conn, "Mix", None, PlaylistImageMode::Generated, None).unwrap();
         add_tracks_to_playlist(&conn, playlist_id, &[1, 2, 3]).unwrap();
         assert_eq!(playlist_track_ids(&conn, playlist_id).unwrap(), vec![1, 2, 3]);
 

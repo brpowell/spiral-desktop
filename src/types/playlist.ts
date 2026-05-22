@@ -1,3 +1,5 @@
+export type PlaylistImageMode = "generated" | "custom";
+
 export interface Playlist {
   id: number;
   title: string;
@@ -5,4 +7,6 @@ export interface Playlist {
   dateCreated: string;
   lastUsedAt: string;
   trackIds: number[];
+  imageMode: PlaylistImageMode;
+  customImagePath: string | null;
 }

@@ -1,4 +1,3 @@
-import { pickArtPath } from "./albums";
 import type { Playlist } from "../types/playlist";
 import type { Track } from "../types/track";
 
@@ -12,10 +11,6 @@ export function resolvePlaylistTracks(
   return playlist.trackIds
     .map((id) => byId.get(id))
     .filter((t): t is Track => t != null);
-}
-
-export function playlistArtPath(tracks: Track[]): string | null {
-  return pickArtPath(tracks);
 }
 
 export function recentPlaylists(

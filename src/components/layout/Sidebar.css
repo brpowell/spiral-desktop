@@ -52,7 +52,9 @@
 }
 
 .sidebar__playlist-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.4rem 0.75rem;
   border: none;
@@ -63,10 +65,16 @@
   font-weight: 500;
   font-family: var(--font-ui);
   text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.sidebar__playlist-title {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
 }
 
 .sidebar__playlist-link:hover {

@@ -2,12 +2,8 @@ import { useEffect, useMemo } from "react";
 import { ContextMenuSeparator } from "../components/ContextMenu/ContextMenu";
 import { albumTotalDurationSeconds } from "../lib/albums";
 import { formatTime } from "../lib/format";
-import {
-  getPlaylistById,
-  playlistArtPath,
-  resolvePlaylistTracks,
-} from "../lib/playlists";
-import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { getPlaylistById, resolvePlaylistTracks } from "../lib/playlists";
+import { PlaylistArt } from "../components/PlaylistArt/PlaylistArt";
 import { Button } from "../components/common/Button/Button";
 import { ContextMenuItem } from "../components/ContextMenu/ContextMenu";
 import { MenuButton } from "../components/MenuButton/MenuButton";
@@ -78,8 +74,6 @@ function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
     () => resolvePlaylistTracks(playlist, library),
     [playlist, library],
   );
-
-  const artPath = useMemo(() => playlistArtPath(tracks), [tracks]);
 
   const trackIds = tracks.map((t) => t.id);
   const totalDuration = albumTotalDurationSeconds(tracks);
@@ -175,10 +169,11 @@ function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
       </div>
 
       <section className="playlist-detail__hero">
-        <AlbumArt
-          artPath={artPath}
+        <PlaylistArt
+          playlist={playlist}
+          tracks={tracks}
+          className="playlist-detail__art"
           alt={playlist.title}
-          className="album-art--hero playlist-detail__art"
         />
         <div className="playlist-detail__meta">
           <h1 className="playlist-detail__title">{playlist.title}</h1>

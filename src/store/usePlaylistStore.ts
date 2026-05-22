@@ -10,6 +10,7 @@ import {
   updatePlaylist as updatePlaylistApi,
 } from "../lib/tauri";
 import type { Playlist } from "../types/playlist";
+import type { PlaylistImageUpdate } from "../lib/tauri";
 
 export type PlaylistEditorTarget = number | "new" | null;
 
@@ -21,11 +22,16 @@ interface PlaylistState {
   loadPlaylists: () => Promise<void>;
   openPlaylistEditor: (target: number | "new", pendingTrackIds?: number[]) => void;
   closePlaylistEditor: () => void;
-  createPlaylist: (title: string, description: string | null) => Promise<number>;
+  createPlaylist: (
+    title: string,
+    description: string | null,
+    image: PlaylistImageUpdate,
+  ) => Promise<number>;
   updatePlaylist: (
     id: number,
     title: string,
     description: string | null,
+    image: PlaylistImageUpdate,
   ) => Promise<void>;
   addTracksToPlaylist: (playlistId: number, trackIds: number[]) => Promise<void>;
   removeTracksFromPlaylist: (
@@ -64,8 +70,8 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     });
   },
 
-  createPlaylist: async (title, description) => {
-    const id = await createPlaylistApi(title, description);
+  createPlaylist: async (title, description, image) => {
+    const id = await createPlaylistApi(title, description, image);
     const { pendingTrackIdsForNewPlaylist } = get();
     if (pendingTrackIdsForNewPlaylist.length > 0) {
       await addTracksToPlaylistApi(id, pendingTrackIdsForNewPlaylist);
@@ -75,8 +81,8 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     return id;
   },
 
-  updatePlaylist: async (id, title, description) => {
-    await updatePlaylistApi(id, title, description);
+  updatePlaylist: async (id, title, description, image) => {
+    await updatePlaylistApi(id, title, description, image);
     await get().loadPlaylists();
   },
 

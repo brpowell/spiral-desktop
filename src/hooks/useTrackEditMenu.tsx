@@ -17,8 +17,13 @@ import {
   IconRemoveFromPlaylist,
   IconRemoveFromQueue,
 } from "../components/icons";
+import {
+  PlaylistContextMenuIcon,
+  usePlaylistTracksById,
+} from "../components/PlaylistArt/PlaylistContextMenuIcon";
 import { showPlaylistAddedToast } from "../lib/playlistToast";
 import { recentPlaylists, sortedPlaylists } from "../lib/playlists";
+import type { Playlist } from "../types/playlist";
 import { tracksForContextAction } from "../lib/trackSelection";
 import { usePlayerStore } from "../store/usePlayerStore";
 import { usePlaylistStore } from "../store/usePlaylistStore";
@@ -54,6 +59,7 @@ export function useTrackEditMenu(
 
   const recent = useMemo(() => recentPlaylists(playlists), [playlists]);
   const allSorted = useMemo(() => sortedPlaylists(playlists), [playlists]);
+  const playlistTracksById = usePlaylistTracksById(playlists, library);
 
   const libraryIdSet = useMemo(
     () => new Set(library.map((t) => t.id)),
@@ -123,6 +129,20 @@ export function useTrackEditMenu(
     openPlaylistEditor("new", contextTrackIds);
   }, [closeMenu, openPlaylistEditor, contextTrackIds]);
 
+  const renderPlaylistItem = (playlist: Playlist) => (
+    <ContextMenuItem
+      key={playlist.id}
+      icon={
+        <PlaylistContextMenuIcon
+          playlist={playlist}
+          tracks={playlistTracksById.get(playlist.id) ?? []}
+        />
+      }
+      label={playlist.title}
+      onClick={() => handleAddToPlaylist(playlist.id)}
+    />
+  );
+
   const contextMenu = (
     <ContextMenu
       open={open}
@@ -181,28 +201,14 @@ export function useTrackEditMenu(
           <>
             <ContextMenuSeparator />
             <ContextMenuHeading>Recent playlists</ContextMenuHeading>
-            {recent.map((p) => (
-              <ContextMenuItem
-                key={p.id}
-                icon={null}
-                label={p.title}
-                onClick={() => handleAddToPlaylist(p.id)}
-              />
-            ))}
+            {recent.map(renderPlaylistItem)}
           </>
         ) : null}
         {allSorted.length > 0 ? (
           <>
             <ContextMenuSeparator />
             <ContextMenuHeading>All playlists</ContextMenuHeading>
-            {allSorted.map((p) => (
-              <ContextMenuItem
-                key={p.id}
-                icon={null}
-                label={p.title}
-                onClick={() => handleAddToPlaylist(p.id)}
-              />
-            ))}
+            {allSorted.map(renderPlaylistItem)}
           </>
         ) : null}
       </ContextMenuSubmenu>
