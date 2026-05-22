@@ -30,6 +30,7 @@ import {
   ModalTitle,
 } from "../common/Modal/Modal";
 import { Button } from "../common/Button/Button";
+import { FormField } from "../common/Field/Field";
 import { TextInput } from "../common/TextInput/TextInput";
 import "../TrackEditor/TrackEditor.css";
 import "./AlbumEditor.css";
@@ -443,28 +444,25 @@ export function AlbumEditor() {
               </div>
 
               <div className="track-editor__fields">
-                <label>
-                  Album
+                <FormField label="Album">
                   <TextInput
                     value={form.title}
                     onChange={(e) => setField("title", e.target.value)}
                   />
-                </label>
-                <label>
-                  Album Artist
+                </FormField>
+                <FormField label="Album Artist">
                   <TextInput
                     value={form.artist}
                     onChange={(e) => setField("artist", e.target.value)}
                   />
-                </label>
-                <label>
-                  Year
+                </FormField>
+                <FormField label="Year">
                   <TextInput
                     type="number"
                     value={form.year}
                     onChange={(e) => setField("year", e.target.value)}
                   />
-                </label>
+                </FormField>
               </div>
             </div>
 

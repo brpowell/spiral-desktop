@@ -171,13 +171,13 @@
   gap: 0.75rem;
 }
 
-.track-editor__fields label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+.track-editor__fields .field + .field {
+  margin-top: 0;
+}
+
+.track-editor__fields .field__label {
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
 }
 
 .track-editor__error {

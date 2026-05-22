@@ -4,6 +4,7 @@ import { getPlaylistById } from "../../lib/playlists";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlaylistStore } from "../../store/usePlaylistStore";
 import { Button } from "../common/Button/Button";
+import { FormField } from "../common/Field/Field";
 import {
   Modal,
   ModalBody,
@@ -12,6 +13,7 @@ import {
   ModalTitle,
 } from "../common/Modal/Modal";
 import { TextInput } from "../common/TextInput/TextInput";
+import { Textarea } from "../common/Textarea/Textarea";
 
 export function PlaylistEditorModal() {
   const editingPlaylistId = usePlaylistStore((s) => s.editingPlaylistId);
@@ -100,8 +102,7 @@ export function PlaylistEditorModal() {
       </ModalHeader>
 
       <ModalBody>
-        <label className="modal-field">
-          <span className="modal-label">Title</span>
+        <FormField label="Title">
           <TextInput
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -110,17 +111,15 @@ export function PlaylistEditorModal() {
             }}
             autoFocus
           />
-        </label>
-        <label className="modal-field">
-          <span className="modal-label">Description</span>
-          <textarea
-            className="modal-textarea"
+        </FormField>
+        <FormField label="Description">
+          <Textarea
             value={description}
             rows={3}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional"
           />
-        </label>
+        </FormField>
       </ModalBody>
 
       <ModalFooter onCancel={handleClose} cancelDisabled={saving}>

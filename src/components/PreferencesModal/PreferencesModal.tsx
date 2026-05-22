@@ -4,6 +4,7 @@ import { pickDatabaseFolder, pickFolder } from "../../lib/tauri";
 import { useLibrarySettingsStore } from "../../store/useLibrarySettingsStore";
 import type { ImportMode, LibrarySettings } from "../../types/library";
 import { Button } from "../common/Button/Button";
+import { FormField } from "../common/Field/Field";
 import {
   Modal,
   ModalBody,
@@ -106,8 +107,7 @@ export function PreferencesModal() {
             Library
           </h3>
 
-          <label className="preferences__field">
-            <span className="preferences__label">Media folder</span>
+          <FormField label="Media folder">
             <div className="preferences__path-row">
               <TextInput
                 value={draft.mediaFolder}
@@ -120,10 +120,9 @@ export function PreferencesModal() {
                 Choose…
               </Button>
             </div>
-          </label>
+          </FormField>
 
-          <label className="preferences__field">
-            <span className="preferences__label">Database location</span>
+          <FormField label="Database location">
             <div className="preferences__path-row">
               <TextInput
                 value={draft.databasePath}
@@ -138,7 +137,7 @@ export function PreferencesModal() {
                 Choose…
               </Button>
             </div>
-          </label>
+          </FormField>
 
           <label className="preferences__checkbox">
             <input
@@ -202,8 +201,7 @@ export function PreferencesModal() {
             Keep backups before metadata edits
           </label>
 
-          <label className="preferences__field">
-            <span className="preferences__label">Retention (days)</span>
+          <FormField label="Retention (days)">
             <TextInput
               type="number"
               min={1}
@@ -226,7 +224,7 @@ export function PreferencesModal() {
                 );
               }}
             />
-          </label>
+          </FormField>
         </section>
 
         {restartHint && (

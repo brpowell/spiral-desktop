@@ -31,6 +31,7 @@ import {
   ModalTitle,
 } from "../common/Modal/Modal";
 import { Button } from "../common/Button/Button";
+import { FormField } from "../common/Field/Field";
 import { TextInput } from "../common/TextInput/TextInput";
 import "./TrackEditor.css";
 
@@ -94,8 +95,7 @@ function TrackEditorField({
   onChange: (field: TrackEditorFormField, value: string) => void;
 }) {
   return (
-    <label>
-      {label}
+    <FormField label={label}>
       <TextInput
         type={type}
         value={form[field]}
@@ -104,7 +104,7 @@ function TrackEditorField({
         }
         onChange={(e) => onChange(field, e.target.value)}
       />
-    </label>
+    </FormField>
   );
 }
 
