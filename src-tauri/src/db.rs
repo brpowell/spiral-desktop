@@ -300,6 +300,11 @@ pub fn touch_playlist(conn: &Connection, id: i64) -> Result<(), rusqlite::Error>
     Ok(())
 }
 
+pub fn delete_playlist(conn: &Connection, id: i64) -> Result<bool, rusqlite::Error> {
+    let deleted = conn.execute("DELETE FROM playlists WHERE id = ?1", params![id])?;
+    Ok(deleted > 0)
+}
+
 pub fn add_tracks_to_playlist(
     conn: &Connection,
     playlist_id: i64,

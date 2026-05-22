@@ -3,6 +3,7 @@ import {
   addTracksToPlaylist as addTracksToPlaylistApi,
   removeTracksFromPlaylist as removeTracksFromPlaylistApi,
   createPlaylist as createPlaylistApi,
+  deletePlaylist as deletePlaylistApi,
   getPlaylists,
   touchPlaylist as touchPlaylistApi,
   updatePlaylist as updatePlaylistApi,
@@ -31,6 +32,7 @@ interface PlaylistState {
     trackIds: number[],
   ) => Promise<void>;
   touchPlaylist: (id: number) => Promise<void>;
+  deletePlaylist: (id: number) => Promise<void>;
 }
 
 export const usePlaylistStore = create<PlaylistState>((set, get) => ({
@@ -86,5 +88,14 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   touchPlaylist: async (id) => {
     await touchPlaylistApi(id);
     await get().loadPlaylists();
+  },
+
+  deletePlaylist: async (id) => {
+    await deletePlaylistApi(id);
+    const { editingPlaylistId } = get();
+    await get().loadPlaylists();
+    if (editingPlaylistId === id) {
+      set({ editingPlaylistId: null });
+    }
   },
 }));

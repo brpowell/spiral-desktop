@@ -146,6 +146,10 @@ export async function removeTracksFromPlaylist(
   return invoke<void>("remove_tracks_from_playlist", { playlistId, trackIds });
 }
 
+export async function deletePlaylist(id: number): Promise<void> {
+  return invoke<void>("delete_playlist", { id });
+}
+
 export async function pickImageFile(): Promise<string | null> {
   return invoke<string | null>("pick_image_file");
 }

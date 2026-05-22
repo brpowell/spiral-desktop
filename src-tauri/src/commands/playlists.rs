@@ -74,3 +74,13 @@ pub fn remove_tracks_from_playlist(
         e.to_string()
     })
 }
+
+#[tauri::command]
+pub fn delete_playlist(state: State<DbState>, id: i64) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db::delete_playlist(&conn, id).map_err(|e| {
+        eprintln!("delete_playlist error: {e}");
+        e.to_string()
+    })?;
+    Ok(())
+}

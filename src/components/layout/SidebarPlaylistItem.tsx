@@ -9,7 +9,8 @@ interface SidebarPlaylistItemProps {
 export function SidebarPlaylistItem({ playlist }: SidebarPlaylistItemProps) {
   const playlistId = useNavigationStore((s) => s.playlistId);
   const openPlaylist = useNavigationStore((s) => s.openPlaylist);
-  const { onContextMenu, contextMenu } = usePlaylistSidebarMenu(playlist);
+  const { onContextMenu, contextMenu, deleteDialog } =
+    usePlaylistSidebarMenu(playlist);
 
   const isActive = playlistId === playlist.id;
 
@@ -29,6 +30,7 @@ export function SidebarPlaylistItem({ playlist }: SidebarPlaylistItemProps) {
         {playlist.title}
       </button>
       {contextMenu}
+      {deleteDialog}
     </li>
   );
 }

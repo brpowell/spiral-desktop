@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { ContextMenuSeparator } from "../components/ContextMenu/ContextMenu";
 import { albumTotalDurationSeconds } from "../lib/albums";
 import { formatTime } from "../lib/format";
 import {
@@ -14,12 +15,15 @@ import { TrackList } from "../components/TrackList/TrackList";
 import {
   IconAddToQueue,
   IconBack,
+  IconDelete,
   IconEditInfo,
   IconPlay,
 } from "../components/icons";
+import { useDeletePlaylistDialog } from "../hooks/useDeletePlaylistDialog";
 import { useNavigationStore } from "../store/useNavigationStore";
 import { usePlayerStore } from "../store/usePlayerStore";
 import { usePlaylistStore } from "../store/usePlaylistStore";
+import type { Playlist } from "../types/playlist";
 import type { Track } from "../types/track";
 import "./PlaylistDetailView.css";
 
@@ -31,23 +35,7 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
   const closePlaylist = useNavigationStore((s) => s.closePlaylist);
   const playlists = usePlaylistStore((s) => s.playlists);
   const touchPlaylist = usePlaylistStore((s) => s.touchPlaylist);
-  const openPlaylistEditor = usePlaylistStore((s) => s.openPlaylistEditor);
-  const library = usePlayerStore((s) => s.library);
-  const playTracks = usePlayerStore((s) => s.playTracks);
-  const currentTrackId = usePlayerStore((s) => s.currentTrackId);
-  const playbackState = usePlayerStore((s) => s.playbackState);
-  const selectedTrackIds = usePlayerStore((s) => s.selectedTrackIds);
-  const selectTracksInList = usePlayerStore((s) => s.selectTracksInList);
-  const addToQueue = usePlayerStore((s) => s.addToQueue);
-
   const playlist = getPlaylistById(playlists, playlistId);
-
-  const tracks = useMemo(
-    () => (playlist ? resolvePlaylistTracks(playlist, library) : []),
-    [playlist, library],
-  );
-
-  const artPath = useMemo(() => playlistArtPath(tracks), [tracks]);
 
   useEffect(() => {
     void touchPlaylist(playlistId);
@@ -69,6 +57,28 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
       </div>
     );
   }
+
+  return <PlaylistDetailContent playlist={playlist} />;
+}
+
+function PlaylistDetailContent({ playlist }: { playlist: Playlist }) {
+  const closePlaylist = useNavigationStore((s) => s.closePlaylist);
+  const openPlaylistEditor = usePlaylistStore((s) => s.openPlaylistEditor);
+  const library = usePlayerStore((s) => s.library);
+  const playTracks = usePlayerStore((s) => s.playTracks);
+  const currentTrackId = usePlayerStore((s) => s.currentTrackId);
+  const playbackState = usePlayerStore((s) => s.playbackState);
+  const selectedTrackIds = usePlayerStore((s) => s.selectedTrackIds);
+  const selectTracksInList = usePlayerStore((s) => s.selectTracksInList);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const { requestDelete, deleteDialog } = useDeletePlaylistDialog(playlist);
+
+  const tracks = useMemo(
+    () => resolvePlaylistTracks(playlist, library),
+    [playlist, library],
+  );
+
+  const artPath = useMemo(() => playlistArtPath(tracks), [tracks]);
 
   const trackIds = tracks.map((t) => t.id);
   const totalDuration = albumTotalDurationSeconds(tracks);
@@ -141,6 +151,16 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
                   handlePlayAll();
                 }}
               />
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                icon={<IconDelete />}
+                label="Delete Playlist"
+                className="context-menu__danger"
+                onClick={() => {
+                  close();
+                  requestDelete();
+                }}
+              />
             </>
           )}
         </MenuButton>
@@ -176,7 +196,7 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
       ) : (
         <TrackList
           presetId="playlist"
-          playlistId={playlistId}
+          playlistId={playlist.id}
           showAlbumArt
           tracks={tracks}
           selectedTrackIds={selectedTrackIds}
@@ -188,6 +208,7 @@ export function PlaylistDetailView({ playlistId }: PlaylistDetailViewProps) {
           className="playlist-detail__tracks"
         />
       )}
+      {deleteDialog}
     </div>
   );
 }
