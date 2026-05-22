@@ -5,6 +5,7 @@ import type { PlaybackSession } from "../types/playbackSession";
 import type { Theme } from "../types/theme";
 import type { CoverArtCandidate } from "../types/coverArt";
 import type { TrackMetadataUpdate } from "../types/metadata";
+import type { Playlist } from "../types/playlist";
 import type { Track, TrackInput } from "../types/track";
 
 function normalizeCoverArtCandidate(
@@ -93,6 +94,49 @@ export async function removeTrack(
 export async function getLibrary(): Promise<Track[]> {
   const rows = await invoke<Record<string, unknown>[]>("get_library");
   return rows.map(normalizeTrack);
+}
+
+function normalizePlaylist(raw: Record<string, unknown>): Playlist {
+  return {
+    id: raw.id as number,
+    title: raw.title as string,
+    description:
+      (raw.description as string | null | undefined) ?? null,
+    dateCreated: (raw.dateCreated ?? raw.date_created) as string,
+    lastUsedAt: (raw.lastUsedAt ?? raw.last_used_at) as string,
+    trackIds: (raw.trackIds ?? raw.track_ids ?? []) as number[],
+  };
+}
+
+export async function getPlaylists(): Promise<Playlist[]> {
+  const rows = await invoke<Record<string, unknown>[]>("get_playlists");
+  return rows.map(normalizePlaylist);
+}
+
+export async function createPlaylist(
+  title: string,
+  description: string | null,
+): Promise<number> {
+  return invoke<number>("create_playlist", { title, description });
+}
+
+export async function updatePlaylist(
+  id: number,
+  title: string,
+  description: string | null,
+): Promise<void> {
+  return invoke<void>("update_playlist", { id, title, description });
+}
+
+export async function touchPlaylist(id: number): Promise<void> {
+  return invoke<void>("touch_playlist", { id });
+}
+
+export async function addTracksToPlaylist(
+  playlistId: number,
+  trackIds: number[],
+): Promise<void> {
+  return invoke<void>("add_tracks_to_playlist", { playlistId, trackIds });
 }
 
 export async function pickImageFile(): Promise<string | null> {

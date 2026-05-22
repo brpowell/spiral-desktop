@@ -1,19 +1,27 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ContextMenu,
+  ContextMenuHeading,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSubmenu,
 } from "../components/ContextMenu/ContextMenu";
 import { RemoveTrackDialog } from "../components/RemoveTrackDialog/RemoveTrackDialog";
 import {
   IconAddToQueue,
   IconDelete,
   IconEditInfo,
+  IconPlaylists,
   IconRemoveFromQueue,
 } from "../components/icons";
+import {
+  allPlaylistsExcludingRecent,
+  recentPlaylists,
+} from "../lib/playlists";
 import { tracksForContextAction } from "../lib/trackSelection";
 import { usePlayerStore } from "../store/usePlayerStore";
+import { usePlaylistStore } from "../store/usePlaylistStore";
 import type { Track } from "../types/track";
 import { useContextMenu } from "./useContextMenu";
 
@@ -27,7 +35,18 @@ export function useTrackEditMenu(track: Track) {
   const removeTracksFromLibrary = usePlayerStore((s) => s.removeTracksFromLibrary);
   const selectTracksInList = usePlayerStore((s) => s.selectTracksInList);
 
+  const playlists = usePlaylistStore((s) => s.playlists);
+  const addTracksToPlaylist = usePlaylistStore((s) => s.addTracksToPlaylist);
+  const openPlaylistEditor = usePlaylistStore((s) => s.openPlaylistEditor);
+
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const submenuPanelRef = useRef<HTMLDivElement>(null);
+
+  const recent = useMemo(() => recentPlaylists(playlists), [playlists]);
+  const allOthers = useMemo(
+    () => allPlaylistsExcludingRecent(playlists, recent),
+    [playlists, recent],
+  );
 
   const libraryIdSet = useMemo(
     () => new Set(library.map((t) => t.id)),
@@ -61,14 +80,35 @@ export function useTrackEditMenu(track: Track) {
 
   const { onContextMenu, closeMenu, open, anchor, position, menuRef } =
     useContextMenu({
-      layoutDeps: [anyInQueue, bulkRemove, contextTracks.length],
+      layoutDeps: [
+        anyInQueue,
+        bulkRemove,
+        contextTracks.length,
+        playlists.length,
+        recent.length,
+        allOthers.length,
+      ],
       onBeforeOpen,
+      dismissExcludeRefs: [submenuPanelRef],
     });
 
   const openEditor = useCallback(() => {
     closeMenu();
     openTrackEditor(contextTrackIds);
   }, [closeMenu, openTrackEditor, contextTrackIds]);
+
+  const handleAddToPlaylist = useCallback(
+    (playlistId: number) => {
+      closeMenu();
+      void addTracksToPlaylist(playlistId, contextTrackIds);
+    },
+    [closeMenu, addTracksToPlaylist, contextTrackIds],
+  );
+
+  const handleNewPlaylist = useCallback(() => {
+    closeMenu();
+    openPlaylistEditor("new", contextTrackIds);
+  }, [closeMenu, openPlaylistEditor, contextTrackIds]);
 
   const contextMenu = (
     <ContextMenu
@@ -112,6 +152,46 @@ export function useTrackEditMenu(track: Track) {
           }}
         />
       ) : null}
+      <ContextMenuSubmenu
+        label="Add to Playlist"
+        icon={<IconPlaylists />}
+        panelRef={submenuPanelRef}
+      >
+        <ContextMenuHeading>New playlist</ContextMenuHeading>
+        <ContextMenuItem
+          icon={null}
+          label="New Playlist…"
+          onClick={handleNewPlaylist}
+        />
+        {recent.length > 0 ? (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuHeading>Recent playlists</ContextMenuHeading>
+            {recent.map((p) => (
+              <ContextMenuItem
+                key={p.id}
+                icon={null}
+                label={p.title}
+                onClick={() => handleAddToPlaylist(p.id)}
+              />
+            ))}
+          </>
+        ) : null}
+        <ContextMenuSeparator />
+        <ContextMenuHeading>All playlists</ContextMenuHeading>
+        {allOthers.length > 0 ? (
+          allOthers.map((p) => (
+            <ContextMenuItem
+              key={p.id}
+              icon={null}
+              label={p.title}
+              onClick={() => handleAddToPlaylist(p.id)}
+            />
+          ))
+        ) : playlists.length === 0 ? (
+          <ContextMenuHeading>No playlists</ContextMenuHeading>
+        ) : null}
+      </ContextMenuSubmenu>
       <ContextMenuSeparator />
       <ContextMenuItem
         icon={<IconDelete />}
