@@ -1,6 +1,6 @@
 .context-menu {
   position: fixed;
-  z-index: 900;
+  z-index: 1100;
   min-width: 11.5rem;
   width: max-content;
   max-width: calc(100vw - 1rem);
@@ -133,7 +133,7 @@
 
 .context-menu--flyout {
   position: fixed;
-  z-index: 901;
+  z-index: 1101;
   max-height: min(24rem, calc(100vh - 1rem));
   overflow-y: auto;
 }

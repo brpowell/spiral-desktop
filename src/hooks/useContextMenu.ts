@@ -17,10 +17,17 @@ export interface UseContextMenuOptions {
   onBeforeOpen?: (e: React.MouseEvent) => void;
   /** Clicks on these elements do not dismiss the menu (e.g. a toggle trigger) */
   dismissExcludeRefs?: RefObject<HTMLElement | null>[];
+  /** Whether scrolling should dismiss an open menu. Defaults to true. */
+  closeOnScroll?: boolean;
 }
 
 export function useContextMenu(options: UseContextMenuOptions = {}) {
-  const { layoutDeps = [], onBeforeOpen, dismissExcludeRefs = [] } = options;
+  const {
+    layoutDeps = [],
+    onBeforeOpen,
+    dismissExcludeRefs = [],
+    closeOnScroll = true,
+  } = options;
 
   const [menuAnchor, setMenuAnchor] = useState<{ x: number; y: number } | null>(
     null,
@@ -99,13 +106,17 @@ export function useContextMenu(options: UseContextMenuOptions = {}) {
     };
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("scroll", closeMenu, true);
+    if (closeOnScroll) {
+      window.addEventListener("scroll", closeMenu, true);
+    }
     return () => {
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("scroll", closeMenu, true);
+      if (closeOnScroll) {
+        window.removeEventListener("scroll", closeMenu, true);
+      }
     };
-  }, [menuAnchor, closeMenu]);
+  }, [menuAnchor, closeMenu, closeOnScroll]);
 
   return {
     open: menuAnchor != null,
