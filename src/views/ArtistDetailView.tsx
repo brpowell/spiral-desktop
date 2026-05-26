@@ -11,6 +11,7 @@ import {
 } from "../components/icons";
 import {
   albumsForArtist,
+  type ArtistBrowseMode,
   artistTotalDurationSeconds,
   getArtistByKey,
 } from "../lib/artists";
@@ -25,12 +26,14 @@ interface ArtistDetailViewProps {
   albums: Album[];
   artists: Artist[];
   artistKey: string;
+  browseMode: ArtistBrowseMode;
 }
 
 export function ArtistDetailView({
   albums,
   artists,
   artistKey,
+  browseMode,
 }: ArtistDetailViewProps) {
   const closeArtist = useNavigationStore((s) => s.closeArtist);
   const playTracks = usePlayerStore((s) => s.playTracks);
@@ -38,8 +41,8 @@ export function ArtistDetailView({
 
   const artist = getArtistByKey(artists, artistKey);
   const discography = useMemo(
-    () => (artist ? albumsForArtist(albums, artist) : []),
-    [albums, artist],
+    () => (artist ? albumsForArtist(albums, artist, browseMode) : []),
+    [albums, artist, browseMode],
   );
 
   if (!artist) {
@@ -61,6 +64,12 @@ export function ArtistDetailView({
 
   const trackIds = artist.tracks.map((t) => t.id);
   const totalDuration = artistTotalDurationSeconds(artist.tracks);
+  const discographySectionTitle =
+    browseMode === "performers" ? "Appears on" : "Discography";
+  const emptyDiscographyMessage =
+    browseMode === "performers"
+      ? "No albums in library for this performer."
+      : "No albums in library.";
 
   const handlePlayAll = () => {
     const first = artist.tracks[0];
@@ -138,11 +147,15 @@ export function ArtistDetailView({
 
       {discography.length > 0 ? (
         <section className="artist-detail__discography">
-          <h2 className="artist-detail__section-title">Discography</h2>
+          <h2 className="artist-detail__section-title">
+            {discographySectionTitle}
+          </h2>
           <DiscographyTimeline albums={discography} />
         </section>
       ) : (
-        <p className="artist-detail__empty-discography">No albums in library.</p>
+        <p className="artist-detail__empty-discography">
+          {emptyDiscographyMessage}
+        </p>
       )}
     </div>
   );

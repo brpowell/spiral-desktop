@@ -10,6 +10,8 @@ import { fitContextMenuPosition } from "../lib/contextMenuPosition";
 
 const TRIGGER_MENU_GAP = 4;
 
+export type ContextMenuTriggerPlacement = "below-end" | "below-start";
+
 export interface UseContextMenuOptions {
   /** Re-run viewport fit when menu content size may change */
   layoutDeps?: unknown[];
@@ -19,6 +21,8 @@ export interface UseContextMenuOptions {
   dismissExcludeRefs?: RefObject<HTMLElement | null>[];
   /** Whether scrolling should dismiss an open menu. Defaults to true. */
   closeOnScroll?: boolean;
+  /** Where to anchor menus opened from a trigger element */
+  triggerPlacement?: ContextMenuTriggerPlacement;
 }
 
 export function useContextMenu(options: UseContextMenuOptions = {}) {
@@ -27,6 +31,7 @@ export function useContextMenu(options: UseContextMenuOptions = {}) {
     onBeforeOpen,
     dismissExcludeRefs = [],
     closeOnScroll = true,
+    triggerPlacement = "below-end",
   } = options;
 
   const [menuAnchor, setMenuAnchor] = useState<{ x: number; y: number } | null>(
@@ -61,10 +66,14 @@ export function useContextMenu(options: UseContextMenuOptions = {}) {
     setMenuAnchor({ x, y });
   }, []);
 
-  const openFromTrigger = useCallback((el: HTMLElement) => {
-    const rect = el.getBoundingClientRect();
-    openAt(rect.right, rect.bottom + TRIGGER_MENU_GAP);
-  }, [openAt]);
+  const openFromTrigger = useCallback(
+    (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      const x = triggerPlacement === "below-start" ? rect.left : rect.right;
+      openAt(x, rect.bottom + TRIGGER_MENU_GAP);
+    },
+    [openAt, triggerPlacement],
+  );
 
   const toggleFromTrigger = useCallback(
     (el: HTMLElement | null) => {

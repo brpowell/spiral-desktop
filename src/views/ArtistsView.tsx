@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { Select } from "../components/common/Select/Select";
 import { SearchField } from "../components/SearchField/SearchField";
-import { albumsForArtist } from "../lib/artists";
+import {
+  albumsForArtist,
+  ARTIST_BROWSE_MODES,
+  type ArtistBrowseMode,
+} from "../lib/artists";
 import { useNavigationStore } from "../store/useNavigationStore";
 import type { Album } from "../types/album";
 import type { Artist } from "../types/artist";
@@ -11,7 +16,14 @@ import "./ArtistsView.css";
 interface ArtistsViewProps {
   artists: Artist[];
   albums: Album[];
+  browseMode: ArtistBrowseMode;
 }
+
+const BROWSE_MODE_OPTIONS = ARTIST_BROWSE_MODES.map((m) => ({
+  value: m.value,
+  label: m.label,
+  description: m.description,
+}));
 
 function matchesArtistSearch(artist: Artist, query: string): boolean {
   const q = query.trim().toLowerCase();
@@ -19,15 +31,33 @@ function matchesArtistSearch(artist: Artist, query: string): boolean {
   return artist.name.toLowerCase().includes(q);
 }
 
+function artistCardMeta(
+  artist: Artist,
+  albumCount: number,
+  browseMode: ArtistBrowseMode,
+): string {
+  const trackLabel =
+    artist.tracks.length === 1
+      ? "1 track"
+      : `${artist.tracks.length} tracks`;
+  if (browseMode === "performers") {
+    const albumLabel =
+      albumCount === 1 ? "1 album" : `${albumCount} albums`;
+    return `${trackLabel} · ${albumLabel}`;
+  }
+  return albumCount === 1 ? "1 album" : `${albumCount} albums`;
+}
+
 function ArtistCard({
   artist,
   albumCount,
+  browseMode,
 }: {
   artist: Artist;
   albumCount: number;
+  browseMode: ArtistBrowseMode;
 }) {
   const openArtist = useNavigationStore((s) => s.openArtist);
-  const albumLabel = albumCount === 1 ? "1 album" : `${albumCount} albums`;
 
   return (
     <motion.button
@@ -46,13 +76,16 @@ function ArtistCard({
         />
       </div>
       <span className="artist-card__name">{artist.name}</span>
-      <span className="artist-card__meta">{albumLabel}</span>
+      <span className="artist-card__meta">
+        {artistCardMeta(artist, albumCount, browseMode)}
+      </span>
     </motion.button>
   );
 }
 
-export function ArtistsView({ artists, albums }: ArtistsViewProps) {
+export function ArtistsView({ artists, albums, browseMode }: ArtistsViewProps) {
   const [search, setSearch] = useState("");
+  const setArtistBrowseMode = useNavigationStore((s) => s.setArtistBrowseMode);
 
   const filteredArtists = useMemo(
     () => artists.filter((a) => matchesArtistSearch(a, search)),
@@ -74,12 +107,22 @@ export function ArtistsView({ artists, albums }: ArtistsViewProps) {
           <h1 className="artists-view__title">Artists</h1>
           <span className="artists-view__count">({artists.length})</span>
         </div>
-        <SearchField
-          value={search}
-          onChange={setSearch}
-          placeholder="Search artists…"
-          aria-label="Search artists"
-        />
+        <div className="artists-view__controls">
+          <Select
+            className="artists-view__browse"
+            aria-label="Artist browse mode"
+            value={browseMode}
+            onChange={setArtistBrowseMode}
+            options={BROWSE_MODE_OPTIONS}
+          />
+          <SearchField
+            className="artists-view__search"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search artists…"
+            aria-label="Search artists"
+          />
+        </div>
       </header>
 
       {filteredArtists.length === 0 ? (
@@ -90,7 +133,8 @@ export function ArtistsView({ artists, albums }: ArtistsViewProps) {
             <ArtistCard
               key={artist.key}
               artist={artist}
-              albumCount={albumsForArtist(albums, artist).length}
+              browseMode={browseMode}
+              albumCount={albumsForArtist(albums, artist, browseMode).length}
             />
           ))}
         </div>

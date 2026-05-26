@@ -24,10 +24,14 @@ export function MainContent() {
   const view = useNavigationStore((s) => s.view);
   const albumKey = useNavigationStore((s) => s.albumKey);
   const artistKey = useNavigationStore((s) => s.artistKey);
+  const artistBrowseMode = useNavigationStore((s) => s.artistBrowseMode);
   const playlistId = useNavigationStore((s) => s.playlistId);
 
   const albums = useMemo(() => groupTracksIntoAlbums(library), [library]);
-  const artists = useMemo(() => groupTracksIntoArtists(library), [library]);
+  const artists = useMemo(
+    () => groupTracksIntoArtists(library, artistBrowseMode),
+    [library, artistBrowseMode],
+  );
 
   const contentKey =
     playlistId != null
@@ -35,7 +39,7 @@ export function MainContent() {
       : albumKey != null
         ? `album-${albumKey}`
         : artistKey != null
-          ? `artist-${artistKey}`
+          ? `artist-${artistBrowseMode}-${artistKey}`
           : view;
 
   return (
@@ -71,6 +75,7 @@ export function MainContent() {
               albums={albums}
               artists={artists}
               artistKey={artistKey}
+              browseMode={artistBrowseMode}
             />
           </motion.div>
         ) : view === "library" ? (
@@ -95,7 +100,11 @@ export function MainContent() {
             className="main-content__view"
             {...viewTransition}
           >
-            <ArtistsView artists={artists} albums={albums} />
+            <ArtistsView
+              artists={artists}
+              albums={albums}
+              browseMode={artistBrowseMode}
+            />
           </motion.div>
         ) : (
           <motion.div
