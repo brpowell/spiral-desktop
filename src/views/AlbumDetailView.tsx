@@ -1,7 +1,7 @@
 import { albumTotalDurationSeconds, getAlbumByKey } from "../lib/albums";
 import { getArtistByKey } from "../lib/artists";
 import { formatTime } from "../lib/format";
-import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { EntityArt } from "../components/EntityArt/EntityArt";
 import { Button } from "../components/common/Button/Button";
 import { ContextMenuItem } from "../components/ContextMenu/ContextMenu";
 import { MenuButton } from "../components/MenuButton/MenuButton";
@@ -140,7 +140,7 @@ export function AlbumDetailView({
       </div>
 
       <section className="album-detail__hero">
-        <AlbumArt
+        <EntityArt
           artPath={album.artPath}
           alt={album.title}
           className="album-art--hero album-detail__art"

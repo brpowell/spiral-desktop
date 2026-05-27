@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { groupAlbumsForTimeline } from "../../lib/discographyTimeline";
 import { useAlbumEditMenu } from "../../hooks/useAlbumEditMenu";
 import { useNavigationStore } from "../../store/useNavigationStore";
-import { AlbumArt } from "../AlbumArt/AlbumArt";
+import { EntityArt } from "../EntityArt/EntityArt";
 import type { Album } from "../../types/album";
 import "./DiscographyTimeline.css";
 
@@ -28,7 +28,7 @@ function TimelineAlbumEntry({ album }: { album: Album }) {
         transition={{ type: "spring", stiffness: 400, damping: 28 }}
       >
         <div className="discography-timeline__entry-art">
-          <AlbumArt artPath={album.artPath} alt={album.title} />
+          <EntityArt artPath={album.artPath} alt={album.title} />
         </div>
         <div className="discography-timeline__entry-meta">
           <span className="discography-timeline__entry-title">{album.title}</span>

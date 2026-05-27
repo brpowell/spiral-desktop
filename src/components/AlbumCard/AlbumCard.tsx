@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { AlbumArt } from "../AlbumArt/AlbumArt";
+import { EntityArt } from "../EntityArt/EntityArt";
 import { useAlbumEditMenu } from "../../hooks/useAlbumEditMenu";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import type { Album } from "../../types/album";
@@ -25,7 +25,7 @@ export function AlbumCard({ album }: AlbumCardProps) {
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
         <div className="album-card__art-wrap">
-          <AlbumArt artPath={album.artPath} alt={album.title} />
+          <EntityArt artPath={album.artPath} alt={album.title} />
         </div>
         <span className="album-card__title">{album.title}</span>
         <span className="album-card__artist">{album.artist}</span>

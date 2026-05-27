@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { EntityArt } from "../components/EntityArt/EntityArt";
 import { Select } from "../components/common/Select/Select";
 import { SearchField } from "../components/SearchField/SearchField";
+import { IconArtistPlaceholder } from "../components/icons";
 import {
   albumsForArtist,
   ARTIST_BROWSE_MODES,
@@ -69,10 +70,11 @@ function ArtistCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
       <div className="artist-card__art-wrap">
-        <AlbumArt
+        <EntityArt
           artPath={artist.artPath}
           alt={artist.name}
           className="album-art--round"
+          placeholder={<IconArtistPlaceholder />}
         />
       </div>
       <span className="artist-card__name">{artist.name}</span>

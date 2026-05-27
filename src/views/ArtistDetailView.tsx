@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { DiscographyTimeline } from "../components/DiscographyTimeline/DiscographyTimeline";
-import { AlbumArt } from "../components/AlbumArt/AlbumArt";
+import { EntityArt } from "../components/EntityArt/EntityArt";
 import { Button } from "../components/common/Button/Button";
 import { ContextMenuItem } from "../components/ContextMenu/ContextMenu";
 import { MenuButton } from "../components/MenuButton/MenuButton";
 import {
   IconAddToQueue,
+  IconArtistPlaceholder,
   IconBack,
   IconEditInfo,
   IconPlay,
@@ -136,10 +137,11 @@ export function ArtistDetailView({
       </div>
 
       <section className="artist-detail__hero">
-        <AlbumArt
+        <EntityArt
           artPath={artist.artPath}
           alt={artist.name}
           className="album-art--hero album-art--round artist-detail__art"
+          placeholder={<IconArtistPlaceholder />}
         />
         <div className="artist-detail__meta">
           <h1 className="artist-detail__title">{artist.name}</h1>

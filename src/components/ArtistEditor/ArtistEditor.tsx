@@ -26,7 +26,8 @@ import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlayerStore } from "../../store/usePlayerStore";
 import type { CoverArtCandidate } from "../../types/coverArt";
 import type { Track } from "../../types/track";
-import { AlbumArt } from "../AlbumArt/AlbumArt";
+import { EntityArt } from "../EntityArt/EntityArt";
+import { IconArtistPlaceholder } from "../icons";
 import {
   Modal,
   ModalBody,
@@ -418,9 +419,10 @@ export function ArtistEditor() {
                       className="track-editor__art-img track-editor__art-img--round"
                     />
                   ) : (
-                    <AlbumArt
+                    <EntityArt
                       artPath={null}
                       className="track-editor__art-placeholder album-art--round"
+                      placeholder={<IconArtistPlaceholder />}
                     />
                   )}
                 </div>

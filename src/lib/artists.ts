@@ -109,7 +109,10 @@ function buildArtistGroups(
     artists.push({
       key,
       name: displayNameForKey(key, sorted),
-      artPath: pickArtPath(sorted),
+      // Artist images are managed separately from album art. Do not default to
+      // album artwork here; artists without an explicit image should render a
+      // generic user/artist placeholder in the UI.
+      artPath: null,
       tracks: sorted,
     });
   }
