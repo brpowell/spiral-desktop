@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo } from "react";
+import { applyArtistImages } from "../../lib/artistArt";
 import { groupTracksIntoAlbums } from "../../lib/albums";
 import { groupTracksIntoArtists } from "../../lib/artists";
+import { useArtistImageStore } from "../../store/useArtistImageStore";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { usePlayerStore } from "../../store/usePlayerStore";
 import { AlbumDetailView } from "../../views/AlbumDetailView";
@@ -21,6 +23,7 @@ const viewTransition = {
 
 export function MainContent() {
   const library = usePlayerStore((s) => s.library);
+  const imagesByKey = useArtistImageStore((s) => s.imagesByKey);
   const view = useNavigationStore((s) => s.view);
   const albumKey = useNavigationStore((s) => s.albumKey);
   const artistKey = useNavigationStore((s) => s.artistKey);
@@ -28,10 +31,10 @@ export function MainContent() {
   const playlistId = useNavigationStore((s) => s.playlistId);
 
   const albums = useMemo(() => groupTracksIntoAlbums(library), [library]);
-  const artists = useMemo(
-    () => groupTracksIntoArtists(library, artistBrowseMode),
-    [library, artistBrowseMode],
-  );
+  const artists = useMemo(() => {
+    const grouped = groupTracksIntoArtists(library, artistBrowseMode);
+    return applyArtistImages(grouped, imagesByKey);
+  }, [library, artistBrowseMode, imagesByKey]);
 
   const contentKey =
     playlistId != null

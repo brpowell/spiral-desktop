@@ -7,6 +7,7 @@ import { MenuButton } from "../components/MenuButton/MenuButton";
 import {
   IconAddToQueue,
   IconBack,
+  IconEditInfo,
   IconPlay,
 } from "../components/icons";
 import {
@@ -38,6 +39,7 @@ export function ArtistDetailView({
   const closeArtist = useNavigationStore((s) => s.closeArtist);
   const playTracks = usePlayerStore((s) => s.playTracks);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const openArtistEditor = usePlayerStore((s) => s.openArtistEditor);
 
   const artist = getArtistByKey(artists, artistKey);
   const discography = useMemo(
@@ -101,6 +103,14 @@ export function ArtistDetailView({
         >
           {(close) => (
             <>
+              <ContextMenuItem
+                icon={<IconEditInfo />}
+                label="Edit Artist"
+                onClick={() => {
+                  close();
+                  openArtistEditor(artist.key, browseMode);
+                }}
+              />
               {artist.tracks.length > 0 ? (
                 <ContextMenuItem
                   icon={<IconAddToQueue />}
