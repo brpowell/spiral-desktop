@@ -9,6 +9,7 @@ import {
   ARTIST_BROWSE_MODES,
   type ArtistBrowseMode,
 } from "../lib/artists";
+import { useArtistEditMenu } from "../hooks/useArtistEditMenu";
 import { useNavigationStore } from "../store/useNavigationStore";
 import type { Album } from "../types/album";
 import type { Artist } from "../types/artist";
@@ -59,29 +60,34 @@ function ArtistCard({
   browseMode: ArtistBrowseMode;
 }) {
   const openArtist = useNavigationStore((s) => s.openArtist);
+  const { onContextMenu, contextMenu } = useArtistEditMenu(artist, browseMode);
 
   return (
-    <motion.button
-      type="button"
-      className="artist-card"
-      role="listitem"
-      onClick={() => openArtist(artist.key)}
-      whileHover={{ scale: 1.03, y: -4 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-    >
-      <div className="artist-card__art-wrap">
-        <EntityArt
-          artPath={artist.artPath}
-          alt={artist.name}
-          className="album-art--round"
-          placeholder={<IconArtistPlaceholder />}
-        />
-      </div>
-      <span className="artist-card__name">{artist.name}</span>
-      <span className="artist-card__meta">
-        {artistCardMeta(artist, albumCount, browseMode)}
-      </span>
-    </motion.button>
+    <>
+      <motion.button
+        type="button"
+        className="artist-card"
+        role="listitem"
+        onClick={() => openArtist(artist.key)}
+        onContextMenu={onContextMenu}
+        whileHover={{ scale: 1.03, y: -4 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      >
+        <div className="artist-card__art-wrap">
+          <EntityArt
+            artPath={artist.artPath}
+            alt={artist.name}
+            className="album-art--round"
+            placeholder={<IconArtistPlaceholder />}
+          />
+        </div>
+        <span className="artist-card__name">{artist.name}</span>
+        <span className="artist-card__meta">
+          {artistCardMeta(artist, albumCount, browseMode)}
+        </span>
+      </motion.button>
+      {contextMenu}
+    </>
   );
 }
 
